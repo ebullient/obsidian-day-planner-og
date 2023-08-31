@@ -1,25 +1,28 @@
-# Day Planner
+# Day Planner (OG)
 
-This is a fork of an early Obdisian Day Planner plugion, which was itself forked and taken off into the wild green yonder of drag and drop and fancy-ness.
+This is a fork of the early Obsidian Day Planner plugin written by [James Lynch](https://github.com/lynchjames). 
 
-Thank you, @lynchjames, for creating a lo-fi plugin that was so useful. For those that aren't interested in the new direction, I'll keep this one steady.
+The [Day Planner Plugin](https://github.com/ivan-lednev/obsidian-day-planner) as it has evolved brings new features like drag-and-drop task creation and a weekly view, etc.
+
+This plugin (OG) retains the function and flavor of the original, while keeping up to date with dependencies and API changes. I have hidden the Mermaid Gantt chart function, as the most wobbly. If you need this capability, we can work together to get that stabilized.
 
 ## This plugin will change your notes
 
-This repository contains a plugin for [Obsidian](https://obsidian.md/) for day planning and managing pomodoro timers from a task list in a Markdown note. 
+The Day Planner plugin manages pomodoro timers from a task list in a Markdown note. 
 
-> It will be running constantly in the background while Obsidian is open and the plugin is enabled. **Please try the plugin in a test vault first, and, most importantly, make sure you have your notes backed up in cloud storage or Git.**
+> When day planner is associated with a note and "Complete past planner items" is enabled, Day planner will update the contents of that note.
 
-You can sometimes have issues if you use multiple devices that are "awake" at the same time that all have this plugin active (each device will try to mark the time block as ended). It may be easiest to use this in one place. For example, I find the day planner features are the most useful when I'm working on my laptop. I don't run it on my phone or tablet. YMMV, find what works for you.
+This may cause issues if you have the plugin (and that setting) enabled on multiple active devices with sync functionality (of any kind). To avoid this issue, I usually have Day Planner active only one device (e.g. my Desktop). That one device updates the time, and the sync utility handles forwarding and merging the updates to other devices.
+
+**Please try the plugin in a test vault first, and, most importantly, make sure you have your notes backed up in cloud storage or Git.**
     
 ## Features
 
 - Generate a day planner for you each day or create a day planner in any note you choose.
 - Status bar updates on progress with information on your current and next tasks. You can click on the status bar to access the note for today's day planner.
-- Mermaid Gantt chart automatically generated from your tasks and included in you day planner note.
 - Timeline view showing your tasks laid out on a vertical timeline.
 
-![Day Planner Demo Image](https://raw.githubusercontent.com/lynchjames/obsidian-day-planner/main/images/day-planner-note-preview.png)
+![Day Planner Demo Image](images/day-planner-note-preview.png)
 
 ## Usage
 
@@ -186,35 +189,24 @@ Commands are used to insert a Day Planner for today within any note as well as u
 The Day Planner can be placed anywhere within a note as long as the format provided is used. Only the Day Planner section of the note will be updated as time progresses.
 
 **Daily mode**
+
 The plugin automatically looks for the day planner in daily notes. The Daily notes plugin must be enabled.
 
 ### Complete Past Planner Items
 
 You can choose whether the plugin will automatically mark planner items in the past as complete or allow you to tick them off yourself.
 
-### Mermaid Gantt
-
-You can choose to include a dynamically generated [Mermaid Gantt chart](https://mermaid-js.github.io/mermaid/#/gantt) in your Day Planner.
-
-Tasks and breaks will be displayed in separate sections to help visualise your plan for the day.
-
-![Mermaid Gantt Chart Example](https://raw.githubusercontent.com/lynchjames/obsidian-day-planner/main/images/mermaid-gantt.png)
-
-Colors for the gantt chart can be overridden with custom CSS and there is [Mermaid documentation](https://mermaid-js.github.io/mermaid/#/gantt?id=styling) on the classes. A CSS file with examples for the task and breaks sections is provided:
-
-[mermaid-gantt-example.css](examples/mermaid-gantt-example.css)
-
 ### Status Bar - Circular Progress
 
 You can choose to display progress in the status bar with a circular pie chart progress bar to save horizontal space.
 
-![Circular Progress Bar](https://raw.githubusercontent.com/lynchjames/obsidian-day-planner/main/images/circular-progress.png)
+![Circular Progress Bar](images/circular-progress.png)
 
 ### Status Bar - Now and Next
 
 You can choose to display the time and start of the text for the current and next task.
 
-![Now and Next](https://raw.githubusercontent.com/lynchjames/obsidian-day-planner/main/images/now-and-next.png)
+![Now and Next](images/now-and-next.png)
 
 ### Task Notification
 
@@ -228,31 +220,37 @@ This is the zoom level to dispaly the timeline. The higher the number, the more 
 
 Using the plugin in command mode, 2 commands are available to link and unlink a Day Planner.
 
-![Plugin Commands](https://raw.githubusercontent.com/lynchjames/obsidian-day-planner/main/images/commands.png)
-
-## Compatibility
-
-Custom plugins are only available for Obsidian v0.9.7+.
-
-The current API of this repo targets Obsidian **v0.9.10**. 
+![Plugin Commands](images/commands.png)
 
 ## Installing
 
-As of version [0.9.7 of Obsidian](https://forum.obsidian.md/t/obsidian-release-v0-9-7-insider-build/7628), this plugin is available to be installed directly from within the app. The plugin can be found in the Community Plugins directory which can be accessed from the Settings pane under Third Party Plugins.
+SOON: This version of the plugin is not yet listed as a Community Plugin.
+
+### Preview with Beta Reviewers Auto-update Tester (BRAT)
+
+1. Install BRAT
+    1. Open `Settings` -> `Community Plugins`
+    2. Disable safe mode
+    3. *Browse*, and search for "BRAT" 
+    4. Install the latest version of **Obsidian 42 - BRAT**
+2. Open BRAT settings (`Settings` -> `Obsidian 42 - BRAT`)
+    1. Scroll to the `Beta Plugin List` section
+    2. `Add Beta Plugin`
+    3. Specify this repository: `ebullient/obsidian-day-planner-og`
+3. Enable the plugin (`Settings` -> `Community Plugins`)
 
 ## Manual installation
 
-1. Download the [latest release](https://github.com/lynchjames/obsidian-day-planner/releases/latest)
-1. Extract the obsidian-day-planner folder from the zip to your vault's plugins folder: `<vault>/.obsidian/plugins/`  
+1. Download the [latest release](https://github.com/ebullient/obsidian-day-planner-og/releases/latest)
+2. Extract the obsidian-day-planner-og folder from the zip to your vault's plugins folder: `<vault>/.obsidian/plugins/`  
 Note: On some machines the `.obsidian` folder may be hidden. On MacOS you should be able to press `Command+Shift+Dot` to show the folder in Finder.
-1. Reload Obsidian
-1. If prompted about Safe Mode, you can disable safe mode and enable the plugin.
+3. Reload Obsidian
+4. If prompted about Safe Mode, you can disable safe mode and enable the plugin.
+5. Enable the plugin (`Settings` -> `Community Plugins`)
 
 ## For developers
+
 Pull requests are both welcome and appreciated. 😀
 
 If you would like to contribute to the development of this plugin, please follow the guidelines provided in [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Donating
-
-This plugin is provided free of charge. If you would like to donate something to me, you can via [PayPal](https://paypal.me/lynchjames2020). Thank you!
