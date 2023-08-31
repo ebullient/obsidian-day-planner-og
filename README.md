@@ -1,11 +1,16 @@
 # Day Planner
 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/lynchjames/obsidian-day-planner/Release%20Build?logo=github&style=for-the-badge) ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/lynchjames/obsidian-day-planner?style=for-the-badge&sort=semver)
+This is a fork of an early Obdisian Day Planner plugion, which was itself forked and taken off into the wild green yonder of drag and drop and fancy-ness.
 
+Thank you, @lynchjames, for creating a lo-fi plugin that was so useful. For those that aren't interested in the new direction, I'll keep this one steady.
+
+## This plugin will change your notes
 
 This repository contains a plugin for [Obsidian](https://obsidian.md/) for day planning and managing pomodoro timers from a task list in a Markdown note. 
 
-> This is an early alpha of version of the plugin and it will be running constantly in the background while Obsidian is open and the plugin is enabled. **Please try the plugin in a test vault first, and, most importantly, make sure you have your notes backed up in cloud storage or Git.**
+> It will be running constantly in the background while Obsidian is open and the plugin is enabled. **Please try the plugin in a test vault first, and, most importantly, make sure you have your notes backed up in cloud storage or Git.**
+
+You can sometimes have issues if you use multiple devices that are "awake" at the same time that all have this plugin active (each device will try to mark the time block as ended). It may be easiest to use this in one place. For example, I find the day planner features are the most useful when I'm working on my laptop. I don't run it on my phone or tablet. YMMV, find what works for you.
     
 ## Features
 
