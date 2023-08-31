@@ -1,87 +1,126 @@
-name: Release Build
-
+name: Release Obsidian Plugin
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
 on:
-  push:
-    # Sequence of patterns matched against refs/tags
-    tags:
-    - '*' # Push events to matching any tag format, i.e. 1.0, 20.15.10
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'New version or major, minor, patch'
+        default: 'patch'
+        required: true
+      update_manifest:
+        description: 'Update manifest.json'
+        default: true
+        required: true
+        type: boolean
+      update_brat:
+        description: 'Update brat manifest'
+        default: true
+        required: true
+        type: boolean
+      retry:
+        description: "Retry release (clear created tag)"
+        default: false
+        required: true
+        type: boolean
 
 env:
-  PLUGIN_NAME: obsidian-day-planner # Change this to the name of your plugin-id folder
+  GH_BOT_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
+  GH_BOT_NAME: "GitHub Action"
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    outputs:
+      version: ${{ steps.build.outputs.version }}
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js
-      uses: actions/setup-node@v1
+    - uses: actions/checkout@v3
       with:
-        node-version: '14.x' # You might need to adjust this value to your own version
-    - name: Build
+        fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
+
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16.7'
+        cache: 'npm'
+
+    # Build the plugin
+    - name: Build and Tag
       id: build
-      run: | 
-        npm install
-        npm run build --if-present
-        mkdir ${{ env.PLUGIN_NAME }}
-        cp dist/main.js manifest.json ${{ env.PLUGIN_NAME }}
-        zip -r ${{ env.PLUGIN_NAME }}.zip ${{ env.PLUGIN_NAME }}
-        ls
-        echo "::set-output name=tag_name::$(git tag --sort version:refname | tail -n 1)"
-    - name: Test
-      id: test
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        npm run test
+        echo "version: ${{ github.event.inputs.version }}"
+        echo "retry: ${{ github.event.inputs.retry }}"
+        echo "update_manifest: ${{ github.event.inputs.update_manifest }}"
+        echo "update_brat: ${{ github.event.inputs.update_brat }}"
+
+        git config user.name ${{ env.GH_BOT_NAME }}
+        git config user.email ${{ env.GH_BOT_EMAIL }}
+
+        npm install
+        if [[ "${{ github.event.inputs.retry }}" = "true" ]]; then
+          npm run preversion
+        else
+          npm version ${{ github.event.inputs.version }} --no-git-tag-version
+        fi
+        VERSION=$(grep '^  "version"' package.json | cut -d'"' -f4)
+        echo $VERSION
+
+        if git rev-parse "refs/tags/$VERSION" > /dev/null 2>&1; then
+          if [[ "${{ github.event.inputs.retry }}" = "true" ]]; then
+            gh release delete $VERSION --cleanup-tag --yes
+          else
+            echo "🛑 Tag $VERSION already exists"
+            exit 1
+          fi
+        fi
+
+        if [ "${{ github.event.inputs.update_manifest }}" = "true" ]; then
+          sed -i 's|\(version":\) "[0-9\.]*"|\1 "'$VERSION'"|' manifest.json
+        fi
+        if [ "${{ github.event.inputs.update_brat }}" = "true" ]; then
+          sed -i 's|\(version":\) "[0-9\.]*"|\1 "'$VERSION'"|' manifest-beta.json
+        fi
+
+        git add .
+        git status
+        git commit -m "🔖 $VERSION"
+        git push
+
+        git tag $VERSION
+        git push --tags
+
+        npm run brat-notes -- ${VERSION}
+        echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+    # Package the required files into a zip
+    - name: Package
+      run: |
+        mkdir ${{ github.event.repository.name }}
+        cp ./build/* ${{ github.event.repository.name }}
+        zip -r ${{ github.event.repository.name }}-${{ steps.build.outputs.version }}.zip ${{ github.event.repository.name }}
+
+    # Create the release on github
     - name: Create Release
       id: create_release
-      uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        VERSION: ${{ github.ref }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: ${{ github.ref }}
-        draft: false
-        prerelease: false
-    - name: Upload zip file
-      id: upload-zip
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} 
-        asset_path: ./${{ env.PLUGIN_NAME }}.zip 
-        asset_name: ${{ env.PLUGIN_NAME }}-${{ steps.build.outputs.tag_name }}.zip 
-        asset_content_type: application/zip
-    - name: Upload main.js
-      id: upload-main
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} 
-        asset_path: ./dist/main.js
-        asset_name: main.js
-        asset_content_type: text/javascript
-    - name: Upload manifest.json
-      id: upload-manifest
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} 
-        asset_path: ./manifest.json
-        asset_name: manifest.json
-        asset_content_type: application/json
-    - name: Upload styles.css
-      id: upload-css
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} 
-        asset_path: ./styles.css
-        asset_name: styles.css
-        asset_content_type: text/css
+      run: |
+        prerelease=true
+        if [ ${{ github.event.inputs.update_manifest }} ]; then
+            prerelease=false
+        fi
+
+        gh release create "${{ steps.build.outputs.version }}" \
+            -F ./release-notes.md \
+            --title "Release ${{ steps.build.outputs.version }}" \
+            --verify-tag \
+            --prerelease=${prerelease}
+
+        gh release upload "${{ steps.build.outputs.version }}" --clobber \
+            ${{ github.event.repository.name }}-${{ steps.build.outputs.version }}.zip \
+            './build/main.js#main.js' \
+            './build/styles.css#styles.css' \
+            './manifest.json' \
+            './manifest-beta.json'
