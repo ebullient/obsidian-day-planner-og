@@ -17,7 +17,7 @@ if you want to view the source, please visit the github repository of this plugi
 const prod = (process.argv[2] === 'production');
 const dir = prod || ! process.env.OUTDIR ? "./build" : process.env.OUTDIR ;
 
-esbuild.build({
+const parameters = {
     banner: {
         js: banner,
     },
@@ -46,16 +46,18 @@ esbuild.build({
             preprocess: sveltePreprocess()
         }),
     ]
-  }).then(context => {
-    if (!prod) {
-      // Enable watch mode
-      context.watch()
-    }
-}).catch((x) => {
-    if (x.errors) {
-        console.error(x.errors);
-    } else {
-        console.error(x);
-    }
-    process.exit(1)
-});
+};
+
+if (prod) {
+    await esbuild.build(parameters).catch((x) => {
+        if (x.errors) {
+            console.error(x.errors);
+        } else {
+            console.error(x);
+        }
+        process.exit(1)
+    });
+} else {
+    let ctx = await esbuild.context(parameters);
+    await ctx.watch()
+}
