@@ -1,6 +1,12 @@
-import 'mocha';
-import { assert } from 'chai';
+/**
+ * @vitest-environment jsdom
+ */
+import Moment from "moment";
+Object.defineProperty(window, "moment", { value: Moment });
+
+import { beforeEach, afterEach, test, expect, describe } from "vitest";
 import { mockDate } from './mocks/date'
+
 import MomentDateRegex from '../src/moment-date-regex';
 const date = new Date(2020, 9, 31, 14, 25, 15);
 const momentRegex = new MomentDateRegex();
@@ -8,77 +14,77 @@ const momentRegex = new MomentDateRegex();
 describe("Date formatting", () => {
     let resetDateMock:() => void;
 
-    before(async () => {
+    beforeEach(async () => {
         resetDateMock = mockDate(date);
     });
     
-    it("No date format formatting using standad format", () => {
+    test("No date format formatting using standad format", () => {
         const input = 'Zettels/{{date}}';
         const expectedOuput = 'Zettels/20201031';
         
-        assert.equal(momentRegex.replace(input), expectedOuput);
+        expect(momentRegex.replace(input)).toEqual(expectedOuput);
     });
 
-    it("YYYYMMDD format", () => {
+    test("YYYYMMDD format", () => {
         const input = 'Zettels/{{date:YYYYMMDD}}';
         const expectedOuput = 'Zettels/20201031';
         
-        assert.equal(momentRegex.replace(input), expectedOuput);
+        expect(momentRegex.replace(input)).toEqual(expectedOuput);
     });
 
-    it("Multiple dates", () => {
+    test("Multiple dates", () => {
         const input = 'Zettels/{{date:YYYY}}/{{date:MMM}}/{{date:DD_ddd}}';
         const expectedOuput = 'Zettels/2020/Oct/31_Sat';
         
-        assert.equal(momentRegex.replace(input), expectedOuput);
+        expect(momentRegex.replace(input)).toEqual(expectedOuput);
     });
 
-    it("Date path prefixing", () => {
+    test("Date path prefixing", () => {
         const input = '{{date:YYYY}}/{{date:MM}}/My Notes';
         const expectedOuput = '2020/10/My Notes';
         
-        assert.equal(momentRegex.replace(input), expectedOuput);
+        expect(momentRegex.replace(input)).toEqual(expectedOuput);
     });
 
-    it("Text between date targets", () => {
+    test("Text between date targets", () => {
         const input = '{{date:YYYY}}/Zettels/{{date:MMMM}}';
         const expectedOuput = '2020/Zettels/October';
         
-        assert.equal(momentRegex.replace(input), expectedOuput);
+        expect(momentRegex.replace(input)).toEqual(expectedOuput);
     });
 
-    it("Date file name prefixing", () => {
+    test("Date file name prefixing", () => {
         const input = '{{date:YYYYMMDDHHmm}}-My New Note';
         const expectedOuput = '202010311425-My New Note';
         
-        assert.equal(momentRegex.replace(input), expectedOuput);
+        expect(momentRegex.replace(input)).toEqual(expectedOuput);
     });
 
-    after(() => {
+    afterEach(() => {
         resetDateMock();
     });
 });
 
 describe("Non-date input", () => {
 
-    it("Input without dates", () => {
+    test("Input without dates", () => {
         const input = 'Inbox/New';
         const expectedOuput = 'Inbox/New';
         
-        assert.equal(momentRegex.replace(input), expectedOuput);
+        expect(momentRegex.replace(input)).toEqual(expectedOuput);
     });
 
-    it("Input with date format without date target", () => {
+    test("Input with date format without date target", () => {
         const input = 'Inbox/YYYY';
         const expectedOuput = 'Inbox/YYYY';
         
-        assert.equal(momentRegex.replace(input), expectedOuput);
+        expect(momentRegex.replace(input)).toEqual(expectedOuput);
     });
 
-    it("Input with date format and partial date target", () => {
+    test("Input with date format and partial date target", () => {
         const input = 'Inbox/{{date:YYYY';
         const expectedOuput = 'Inbox/{{date:YYYY';
         
-        assert.equal(momentRegex.replace(input), expectedOuput);
+        expect(momentRegex.replace(input)).toEqual(expectedOuput);
     });
 });

@@ -1,13 +1,18 @@
-import 'mocha';
+/**
+ * @vitest-environment jsdom
+ */
+import Moment from "moment";
+Object.defineProperty(window, "moment", { value: Moment });
+
+import { test, expect, describe } from "vitest";
 import * as fs from 'fs';
 import path from 'path';
-import { expect } from 'chai';
 
 import Parser from '../src/parser';
 import { DayPlannerSettings } from '../src/settings';
 
 describe('parser', () => {
-  it('should return parsed items', async () => {
+  test('should return parsed items', async () => {
     const fileContents = fs.readFileSync(path.join(__dirname, 'fixtures/test.md')).toString().split('\n');
 
     const settings = new DayPlannerSettings();

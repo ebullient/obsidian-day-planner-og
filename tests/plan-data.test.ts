@@ -1,5 +1,10 @@
-import 'mocha';
-import { expect } from 'chai';
+/**
+ * @vitest-environment jsdom
+ */
+import Moment from "moment";
+Object.defineProperty(window, "moment", { value: Moment });
+
+import { test, expect, describe } from "vitest";
 
 import { PlanItemFactory } from '../src/plan-data';
 import { DayPlannerSettings } from '../src/settings';
@@ -16,23 +21,23 @@ describe('plan-data', () => {
     const text = 'meeting';
     const raw = '- [x] 11:10 meeting';
 
-    it('should generate PlanItem with given text', () => {
+    test('should generate PlanItem with given text', () => {
       const factory = new PlanItemFactory(new DayPlannerSettings());
 
       const item = factory.getPlanItem(matchIndex, charIndex, isCompleted, isBreak, isEnd, time, rawTime, text, raw);
 
-      expect(item.matchIndex).to.eql(matchIndex);
-      expect(item.charIndex).to.eql(charIndex);
-      expect(item.isCompleted).to.eql(isCompleted);
-      expect(item.isBreak).to.eql(isBreak);
-      expect(item.isEnd).to.eql(isEnd);
-      expect(item.time).to.eql(time);
-      expect(item.rawTime).to.eql(rawTime);
-      expect(item.text).to.eql(text);
-      expect(item.raw).to.eql(raw);
+      expect(item.matchIndex).toEqual(matchIndex);
+      expect(item.charIndex).toEqual(charIndex);
+      expect(item.isCompleted).toEqual(isCompleted);
+      expect(item.isBreak).toEqual(isBreak);
+      expect(item.isEnd).toEqual(isEnd);
+      expect(item.time).toEqual(time);
+      expect(item.rawTime).toEqual(rawTime);
+      expect(item.text).toEqual(text);
+      expect(item.raw).toEqual(raw);
     });
 
-    it('should generate PlanItem with break text from settings', () => {
+    test('should generate PlanItem with break text from settings', () => {
       const settings = new DayPlannerSettings();
       settings.breakLabel = 'Custom Break Label';
 
@@ -41,11 +46,11 @@ describe('plan-data', () => {
       const isBreakOn = true;
       const item = factory.getPlanItem(matchIndex, charIndex, isCompleted, isBreakOn, isEnd, time, rawTime, text, raw);
 
-      expect(item.isBreak).to.eql(isBreakOn);
-      expect(item.text).to.eql(settings.breakLabel);
+      expect(item.isBreak).toEqual(isBreakOn);
+      expect(item.text).toEqual(settings.breakLabel);
     });
 
-    it('should generate PlanItem with end text from settings', () => {
+    test('should generate PlanItem with end text from settings', () => {
       const settings = new DayPlannerSettings();
       settings.endLabel = 'Custom End Label';
 
@@ -54,8 +59,8 @@ describe('plan-data', () => {
       const isEndOn = true;
       const item = factory.getPlanItem(matchIndex, charIndex, isCompleted, isBreak, isEndOn, time, rawTime, text, raw);
 
-      expect(item.isEnd).to.eql(isEndOn);
-      expect(item.text).to.eql(settings.endLabel);
+      expect(item.isEnd).toEqual(isEndOn);
+      expect(item.text).toEqual(settings.endLabel);
     });
   });
 });
