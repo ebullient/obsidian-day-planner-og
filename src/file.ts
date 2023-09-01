@@ -37,7 +37,7 @@ export default class DayPlannerFile {
 
     todayPlannerFilePath(): string {
         if(this.settings.mode === DayPlannerMode.Command || this.settings.mode === DayPlannerMode.Daily){
-            return this.noteForDateQuery.active(this.settings.notesToDates).notePath;
+            return this.noteForDateQuery.active(this.settings.notesToDates)?.notePath;
         }
         const fileName = this.todayPlannerFileName();
         return `${this.settings.customFolder ?? 'Day Planners'}/${fileName}`;

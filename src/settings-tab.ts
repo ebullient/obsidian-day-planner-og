@@ -47,17 +47,6 @@ import { ICONS } from './constants';
             }));
 
       new Setting(containerEl)
-        .setName('Mermaid Gantt')
-        .setDesc('Include a mermaid gantt chart generated for the day planner')
-        .addToggle(toggle => 
-          toggle
-            .setValue(this.plugin.settings.mermaid)
-            .onChange((value:boolean) => {
-              this.plugin.settings.mermaid = value;
-              this.plugin.saveData(this.plugin.settings);
-            }));
-
-      new Setting(containerEl)
         .setName('Status Bar - Circular Progress')
         .setDesc('Display a circular progress bar in the status bar')
         .addToggle(toggle => 
@@ -161,7 +150,7 @@ import { ICONS } from './constants';
 
     private addDocsLink(descEl: DocumentFragment) {
       const a = document.createElement('a');
-      a.href = 'https://github.com/lynchjames/obsidian-day-planner/blob/main/README.md';
+      a.href = 'https://github.com/ebullient/obsidian-day-planner-og/blob/main/README.md';
       a.text = 'plugin README';
       a.target = '_blank';
       descEl.appendChild(a);

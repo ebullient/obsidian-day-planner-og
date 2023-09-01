@@ -1,7 +1,6 @@
-import type { MarkdownView, Workspace } from 'obsidian';
-import { DAY_PLANNER_DEFAULT_CONTENT, MERMAID_REGEX } from './constants';
+import { MarkdownView, Workspace } from 'obsidian';
+import { DAY_PLANNER_DEFAULT_CONTENT } from './constants';
 import type DayPlannerFile from './file';
-import PlannerMermaid from './mermaid';
 import type Parser from './parser';
 import type { PlanItem, PlanSummaryData } from './plan-data';
 import type Progress from './progress';
@@ -14,7 +13,6 @@ export default class PlannerMarkdown {
     file: DayPlannerFile;
     parser: Parser;
     progress: Progress;
-    mermaid: PlannerMermaid;
     noteForDateQuery: NoteForDateQuery;
     
     constructor(workspace: Workspace, settings: DayPlannerSettings, file: DayPlannerFile, parser: Parser, progress: Progress){
@@ -23,15 +21,14 @@ export default class PlannerMarkdown {
         this.file = file;
         this.parser = parser;
         this.progress = progress;
-        this.mermaid = new PlannerMermaid(this.progress);
         this.noteForDateQuery = new NoteForDateQuery();
     }
     
     async insertPlanner() {
         const filePath = this.file.todayPlannerFilePath();
-        const fileContents = await (await this.file.getFileContents(filePath)).split('\n');
-        const view = this.workspace.activeLeaf.view as MarkdownView;
-        const currentLine = view.sourceMode.cmEditor.getCursor().line;
+        const fileContents = (await this.file.getFileContents(filePath)).split('\n');
+        const view = this.workspace.getActiveViewOfType(MarkdownView);
+        const currentLine = view.editor.getCursor().line;
         const insertResult = [...fileContents.slice(0, currentLine), ...DAY_PLANNER_DEFAULT_CONTENT.split('\n'), ...fileContents.slice(currentLine)];
         this.file.updateFile(filePath, insertResult.join('\n'));
     }
@@ -39,7 +36,7 @@ export default class PlannerMarkdown {
     async parseDayPlanner():Promise<PlanSummaryData> {
         try {
             const filePath = this.file.todayPlannerFilePath();
-            const fileContent = await (await this.file.getFileContents(filePath)).split('\n');
+            const fileContent = (await this.file.getFileContents(filePath)).split('\n');
 
             const planData = await this.parser.parseMarkdown(fileContent);
             return planData;
@@ -54,7 +51,7 @@ export default class PlannerMarkdown {
         }
         try {
             const filePath = this.file.todayPlannerFilePath();
-            const fileContents = await (await this.file.getFileContents(filePath))
+            const fileContents = (await this.file.getFileContents(filePath));
             const fileContentsArr = fileContents.split('\n');
 
             planSummary.calculate();
@@ -70,23 +67,13 @@ export default class PlannerMarkdown {
                 fileContentsArr[result.index] = result.replacement;
             });
 
-            const fileContentsWithReplacedMermaid = this.replaceMermaid(fileContentsArr.join('\n'), planSummary);
-            if(fileContents !== fileContentsWithReplacedMermaid) {
-                this.file.updateFile(filePath, fileContentsWithReplacedMermaid);
+            const newContents = fileContentsArr.join('\n');
+            if(fileContents !== newContents) {
+                this.file.updateFile(filePath, newContents);
             }
         } catch (error) {
             console.log(error);
         }
-    }
-
-    private replaceMermaid(input: string, planSummary: PlanSummaryData): string{
-        const mermaidResult = this.settings.mermaid ? this.mermaid.generate(planSummary) + '\n\n' : '';
-        const noMatch = input.match(MERMAID_REGEX) === null;
-        if(noMatch) {
-            return input.replace('# Day Planner\n', `# Day Planner\n${mermaidResult}`)
-        }
-        const replaced = input.replace(MERMAID_REGEX, mermaidResult);
-        return replaced;
     }
 
     private updateItemCompletion(item: PlanItem, complete: boolean) {
@@ -103,12 +90,13 @@ export default class PlannerMarkdown {
     }
 
     checkIsDayPlannerEditing(){
-        const activeLeaf = this.workspace.activeLeaf;
-        if(!activeLeaf){
+        const view = this.workspace.getActiveViewOfType(MarkdownView);
+        if(view == null){
             return;
         }
-        const viewState = activeLeaf.view.getState();
-        if(viewState.file === this.file.todayPlannerFilePath()){
+        const viewState = view.getState();
+        const path = this.file.todayPlannerFilePath();
+        if(path && viewState.file === path){
             this.dayPlannerLastEdit = new Date().getTime();
         }
     }
