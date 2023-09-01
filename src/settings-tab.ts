@@ -22,7 +22,7 @@ import { ICONS } from './constants';
       containerEl.empty();
 
       new Setting(containerEl)
-        .setName('Day Planner Mode')
+        .setName('Day Planner mode')
         .setDesc(this.modeDescriptionContent())
         .addDropdown(dropDown => 
           dropDown
@@ -47,7 +47,7 @@ import { ICONS } from './constants';
             }));
 
       new Setting(containerEl)
-        .setName('Status Bar - Circular Progress')
+        .setName('Status bar - circular progress')
         .setDesc('Display a circular progress bar in the status bar')
         .addToggle(toggle => 
           toggle
@@ -58,7 +58,7 @@ import { ICONS } from './constants';
             }));
 
       new Setting(containerEl)
-          .setName('Status Bar - Now and Next')
+          .setName('Status bar - now and next')
           .setDesc('Display now and next tasks in the status bar')
           .addToggle(toggle => 
             toggle
@@ -69,7 +69,7 @@ import { ICONS } from './constants';
               }));
 
       new Setting(containerEl)
-          .setName('Task Notification')
+          .setName('Task notification')
           .setDesc('Display a notification when a new task is started')
           .addToggle(toggle => 
             toggle
@@ -80,7 +80,7 @@ import { ICONS } from './constants';
               }));
 
       new Setting(containerEl)
-          .setName('Timeline Zoom Level')
+          .setName('Timeline zoom level')
           .setDesc('The zoom level to display the timeline. The higher the number, the more vertical space each task will take up.')
           .addSlider(slider => 
             slider
@@ -93,7 +93,7 @@ import { ICONS } from './constants';
               }));
 
       new Setting(containerEl)
-          .setName('Timeline Icon')
+          .setName('Timeline icon')
           .setDesc('The icon of the timeline pane. Reopen timeline pane or restart obsidian to see the change.')
           .addDropdown(dropdown => {
             ICONS.forEach(icon => dropdown.addOption(icon, icon));
