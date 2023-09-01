@@ -313,7 +313,7 @@ color:#fff;
 }
 
 #scroll-controls .toggle:before {
-  content: "on off";
+  content: "on    ";
   display: block;
   position: absolute;
   z-index: 2;
@@ -341,6 +341,10 @@ color:#fff;
 
 #scroll-controls .toggle:checked:before {
   left: 31px;
+}
+
+#scroll-controls input[type=checkbox]:checked:after {
+  background-color: transparent;
 }
 
 .empty-timeline {

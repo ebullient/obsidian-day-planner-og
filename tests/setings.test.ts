@@ -1,15 +1,14 @@
-import 'mocha';
-import { assert } from 'chai';
+import { vi, test, expect, describe } from "vitest";
 import { DayPlannerSettings, DayPlannerMode } from '../src/settings';
 
 const settings = new DayPlannerSettings();
 describe("Day Planner Settings defaults", () => {
 
-    it("Custom Folder", () => {
-        assert.equal(settings.customFolder, 'Day Planners');
+    test("Custom Folder", () => {
+        expect(settings.customFolder).toBe('Day Planners');
     });
 
-    it("Mode", () => {
-        assert.equal(settings.mode, DayPlannerMode.File);
+    test("Mode", () => {
+        expect(settings.mode).toBe(DayPlannerMode.File);
     });
 });

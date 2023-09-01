@@ -30,6 +30,7 @@ const parameters = {
         '@codemirror/language',
         '@codemirror/state',
         '@codemirror/view',
+        'moment',
         ...builtins
     ],
     format: 'cjs',
