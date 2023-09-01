@@ -47,35 +47,35 @@ export default class DayPlanner extends Plugin {
     this.registerEvent(this.app.vault.on('modify', this.codeMirror, ''));
     
     this.addCommand({
-      id: 'app:add-day-planner-to-note',
+      id: 'app:add-to-note',
       name: 'Add a Day Planner template for today to the current note',
       callback: () => this.modeGuard(async () => await this.insertDayPlannerIntoCurrentNote(true)),
       hotkeys: []
     });
 
     this.addCommand({
-      id: 'app:link-day-planner-to-note',
+      id: 'app:link-to-note',
       name: 'Link today\'s Day Planner to the current note',
       callback: () => this.modeGuard(async () => await this.insertDayPlannerIntoCurrentNote(false)),
       hotkeys: []
     });
 
     this.addCommand({
-      id: 'app:unlink-day-planner-from-note',
+      id: 'app:unlink-from-note',
       name: 'Unlink today\'s Day Planner from its note',
       callback: () => this.modeGuard(async () => await this.unlinkDayPlanner()),
       hotkeys: []
     });
 
     this.addCommand({
-      id: 'app:show-day-planner-timeline',
+      id: 'app:show-timeline',
       name: 'Show the Day Planner Timeline',
       callback: () => this.initLeaf(),
       hotkeys: []
     });
 
     this.addCommand({
-      id: 'app:show-day-planner-today-note',
+      id: 'app:show-today-note',
       name: 'Show today\'s Day Planner',
       callback: () => this.app.workspace.openLinkText(this.file.todayPlannerFilePath(), '', true),
       hotkeys: []
