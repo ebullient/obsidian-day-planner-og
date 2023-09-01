@@ -182,12 +182,4 @@ export default class DayPlanner extends Plugin {
         // console.log('No active note, skipping CodeMirror monitoring')
       }
     }
-    
-    onunload() {
-      console.log("Unloading Day Planner plugin");
-      this.app.workspace
-      .getLeavesOfType(VIEW_TYPE_TIMELINE)
-      .forEach((leaf) => leaf.detach());
-    }
-    
   }
