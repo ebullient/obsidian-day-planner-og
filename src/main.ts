@@ -4,7 +4,6 @@ import {
   Vault,
   WorkspaceLeaf, 
 } from 'obsidian';
-import type { Editor } from 'codemirror';
 import { DayPlannerSettingsTab } from './settings-tab';
 import { DayPlannerSettings, DayPlannerMode, NoteForDate, NoteForDateQuery } from './settings';
 import StatusBar from './status-bar';
@@ -27,7 +26,7 @@ export default class DayPlanner extends Plugin {
   timelineView: TimelineView;
   
   async onload() {
-    console.log("Loading Day Planner plugin");
+    console.log("Loading Day Planner plugin v" + this.manifest.version);
     this.vault = this.app.vault;
     this.settings = Object.assign(new DayPlannerSettings(), await this.loadData());
     this.notesForDatesQuery = new NoteForDateQuery();
