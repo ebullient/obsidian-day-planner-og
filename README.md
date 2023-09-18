@@ -22,7 +22,7 @@ This may cause issues if you have the plugin (and that setting) enabled on multi
 - Status bar updates on progress with information on your current and next tasks. You can click on the status bar to access the note for today's day planner.
 - Timeline view showing your tasks laid out on a vertical timeline.
 
-![Day Planner Demo Image](images/day-planner-note-preview.png)
+![Day Planner Demo Image](https://raw.githubusercontent.com/ebullient/obsidian-day-planner-og/main/images/day-planner-note-preview.png)
 
 ## Usage
 
@@ -146,7 +146,7 @@ I use this time to review what I have done earlier in the day and complete any t
 
 The `Show the Day Planner Timeline` command can be used to add a vertical timeline view display the tasks for today's Day Planner with a line showing the current time.
 
-![Day Planner Timeline](https://raw.githubusercontent.com/lynchjames/obsidian-day-planner/main/images/day-planner-timeline.png)
+![Day Planner Timeline](https://raw.githubusercontent.com/ebullient/obsidian-day-planner-og/main/images/day-planner-timeline.png)
 
 ### Status Bar
 
@@ -156,19 +156,19 @@ The status bar in Obsidian will also show the current progress on the task or br
 
 The status displayed when there is an active task:
 
-![Task Status](https://raw.githubusercontent.com/lynchjames/obsidian-day-planner/main/images/task-status.png)
+![Task Status](https://raw.githubusercontent.com/ebullient/obsidian-day-planner-og/main/images/task-status.png)
 
 #### Break Status
 
 The status displayed during a break:
 
-![Break Status](https://raw.githubusercontent.com/lynchjames/obsidian-day-planner/main/images/break-status.png)
+![Break Status](https://raw.githubusercontent.com/ebullient/obsidian-day-planner-og/main/images/break-status.png)
 
 #### End Status
 
 The status displayed when the end of the tasks is reached:
 
-![End Status](https://raw.githubusercontent.com/lynchjames/obsidian-day-planner/main/images/end-status.png)
+![End Status](https://raw.githubusercontent.com/ebullient/obsidian-day-planner-og/main/images/end-status.png)
 
 ## Configuration
 
@@ -200,13 +200,13 @@ You can choose whether the plugin will automatically mark planner items in the p
 
 You can choose to display progress in the status bar with a circular pie chart progress bar to save horizontal space.
 
-![Circular Progress Bar](images/circular-progress.png)
+![Circular Progress Bar](https://raw.githubusercontent.com/ebullient/obsidian-day-planner-og/main/images/circular-progress.png)
 
 ### Status Bar - Now and Next
 
 You can choose to display the time and start of the text for the current and next task.
 
-![Now and Next](images/now-and-next.png)
+![Now and Next](https://raw.githubusercontent.com/ebullient/obsidian-day-planner-og/main/images/now-and-next.png)
 
 ### Task Notification
 
@@ -220,7 +220,7 @@ This is the zoom level to dispaly the timeline. The higher the number, the more 
 
 Using the plugin in command mode, 2 commands are available to link and unlink a Day Planner.
 
-![Plugin Commands](images/commands.png)
+![Plugin Commands](https://raw.githubusercontent.com/ebullient/obsidian-day-planner-og/main/images/commands.png)
 
 ## Installing
 
