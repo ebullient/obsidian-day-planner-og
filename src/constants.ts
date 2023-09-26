@@ -3,10 +3,6 @@ export const DATE_REGEX = /(?<target>{{date:?(?<date>[^}]*)}})/g;
 
 export const DAY_PLANNER_FILENAME = 'Day Planner-{{date}}.md';
 
-//https://regex101.com/r/VAxRnc/8
-export const PLAN_PARSER_REGEX_CREATOR = (breakLabel: string, endLabel: string) =>
-  new RegExp('^(((-?[\\s]*\\[?(?<completion>[x ]*)\\])(\\d.)?\\s*?(?<hours>\\d{1,2}):(?<minutes>\\d{2})\\s)((?<break>' + breakLabel + '[\\n ]?)|(?<end>' + endLabel + '[\\n ]?)|((?<text>.*))))$', 'gmi');
-
 export const DAY_PLANNER_DEFAULT_CONTENT =
 `## Day Planner
 - [ ] `

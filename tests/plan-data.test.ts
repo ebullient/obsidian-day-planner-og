@@ -13,7 +13,7 @@ describe('plan-data', () => {
   describe('PlanItemFactory', () => {
     const matchIndex = 1;
     const charIndex = 0;
-    const isCompleted = true;
+    const status = 'x';
     const isBreak = false;
     const isEnd = false;
     const time = new Date('2021-04-11T11:10:00.507Z');
@@ -24,11 +24,11 @@ describe('plan-data', () => {
     test('should generate PlanItem with given text', () => {
       const factory = new PlanItemFactory(new DayPlannerSettings());
 
-      const item = factory.getPlanItem(matchIndex, charIndex, isCompleted, isBreak, isEnd, time, rawTime, text, raw);
+      const item = factory.getPlanItem(matchIndex, charIndex, 'x', isBreak, isEnd, time, rawTime, text, raw);
 
-      expect(item.matchIndex).toEqual(matchIndex);
+      expect(item.line).toEqual(matchIndex);
       expect(item.charIndex).toEqual(charIndex);
-      expect(item.isCompleted).toEqual(isCompleted);
+      expect(item.status).toEqual('x');
       expect(item.isBreak).toEqual(isBreak);
       expect(item.isEnd).toEqual(isEnd);
       expect(item.time).toEqual(time);
@@ -40,11 +40,12 @@ describe('plan-data', () => {
     test('should generate PlanItem with break text from settings', () => {
       const settings = new DayPlannerSettings();
       settings.breakLabel = 'Custom Break Label';
+      settings.correctLabels = true;
 
       const factory = new PlanItemFactory(settings);
 
       const isBreakOn = true;
-      const item = factory.getPlanItem(matchIndex, charIndex, isCompleted, isBreakOn, isEnd, time, rawTime, text, raw);
+      const item = factory.getPlanItem(matchIndex, charIndex, 'x', isBreakOn, isEnd, time, rawTime, text, raw);
 
       expect(item.isBreak).toEqual(isBreakOn);
       expect(item.text).toEqual(settings.breakLabel);
@@ -53,11 +54,12 @@ describe('plan-data', () => {
     test('should generate PlanItem with end text from settings', () => {
       const settings = new DayPlannerSettings();
       settings.endLabel = 'Custom End Label';
+      settings.correctLabels = true;
 
       const factory = new PlanItemFactory(settings);
 
       const isEndOn = true;
-      const item = factory.getPlanItem(matchIndex, charIndex, isCompleted, isBreak, isEndOn, time, rawTime, text, raw);
+      const item = factory.getPlanItem(matchIndex, charIndex, 'x', isBreak, isEndOn, time, rawTime, text, raw);
 
       expect(item.isEnd).toEqual(isEndOn);
       expect(item.text).toEqual(settings.endLabel);

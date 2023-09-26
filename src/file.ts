@@ -17,7 +17,6 @@ export default class DayPlannerFile {
         this.noteForDateQuery = new NoteForDateQuery();
     }
 
-
     async hasTodayNote(): Promise<boolean> {
         if (this.settings.mode == DayPlannerMode.Daily && appHasDailyNotesPluginLoaded()) {
             const date = new Date();
@@ -49,7 +48,7 @@ export default class DayPlannerFile {
 
     async prepareFile() {
         try {      
-            if(this.settings.mode === DayPlannerMode.File){      
+            if(this.settings.mode === DayPlannerMode.File){
                 await this.createFolderIfNotExists(this.settings.customFolder);
                 await this.createFileIfNotExists(this.todayPlannerFilePath());
             }
@@ -81,19 +80,9 @@ export default class DayPlannerFile {
         }
     }
 
-    async getFileContents(fileName: string){
-        this.prepareFile();
+    async processFile(filename: string, handler: (fileContents: string) => string) {
         try {
-            return await this.vault.adapter.read(fileName);
-        } catch (error) {
-            console.log(error)
-        }
-    }
-    
-    async updateFile(fileName: string, fileContents: string){
-        this.prepareFile();
-        try {
-            return await this.vault.adapter.write(normalizePath(fileName), fileContents);
+            return await this.vault.adapter.process(filename, handler);
         } catch (error) {
             console.log(error)
         }
