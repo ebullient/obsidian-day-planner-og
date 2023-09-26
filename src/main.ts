@@ -2,7 +2,7 @@ import {
   Plugin,
   TAbstractFile,
   Vault,
-  WorkspaceLeaf, 
+  WorkspaceLeaf,
 } from 'obsidian';
 import { DayPlannerSettingsTab } from './settings-tab';
 import { DayPlannerSettings, DayPlannerMode, NoteForDate, NoteForDateQuery } from './settings';
@@ -21,10 +21,10 @@ export default class DayPlanner extends Plugin {
   vault: Vault;
   file: DayPlannerFile;
   plannerMD: PlannerMarkdown;
-  statusBar: StatusBar; 
+  statusBar: StatusBar;
   notesForDatesQuery: NoteForDateQuery;
   timelineView: TimelineView;
-  
+
   async onload() {
     console.log("Loading Day Planner plugin v" + this.manifest.version);
     this.vault = this.app.vault;
@@ -36,8 +36,8 @@ export default class DayPlanner extends Plugin {
     this.plannerMD = new PlannerMarkdown(this.app.workspace, this.settings, this.file, parser, progress)
     this.statusBar = new StatusBar(
       this.settings,
-      this.addStatusBarItem(), 
-      this.app.workspace, 
+      this.addStatusBarItem(),
+      this.app.workspace,
       progress,
       new PlannerMarkdown(this.app.workspace, this.settings, this.file, parser, progress),
       this.file
@@ -45,7 +45,7 @@ export default class DayPlanner extends Plugin {
 
     this.statusBar.initStatusBar();
     this.registerEvent(this.app.vault.on('modify', this.codeMirror, ''));
-    
+
     this.addCommand({
       id: 'app:add-to-note',
       name: 'Add a Day Planner template for today to the current note',
@@ -91,95 +91,97 @@ export default class DayPlanner extends Plugin {
     this.registerInterval(
       window.setInterval(async () => {
         try {
-          if(await this.file.hasTodayNote()){
+          if (await this.file.hasTodayNote()) {
             // console.log('Active note found, starting file processing')
-            const planSummary = await this.plannerMD.parseDayPlanner();
-            planSummary.calculate();
+            const planSummary = await this.plannerMD.processDayPlanner();
             await this.statusBar.refreshStatusBar(planSummary)
-            await this.plannerMD.updateDayPlannerMarkdown(planSummary)
             this.timelineView && this.timelineView.update(planSummary);
           } else if (this.settings.mode == DayPlannerMode.Daily && appHasDailyNotesPluginLoaded()) {
-              // console.log('Clearing status bar & timeline in case daily note was deleted')
-              const planSummary = new PlanSummaryData([]);
-              await this.statusBar.refreshStatusBar(planSummary)
-              this.timelineView && this.timelineView.update(planSummary);
+            // console.log('Clearing status bar & timeline in case daily note was deleted')
+            const planSummary = new PlanSummaryData([]);
+            await this.statusBar.refreshStatusBar(planSummary)
+            this.timelineView && this.timelineView.update(planSummary);
           } else {
             // console.log('No active note, skipping file processing')
           }
         } catch (error) {
-            console.log(error)
+          console.log(error)
         }
       }, 2000));
   }
 
-    initLeaf() {
-      if (this.app.workspace.getLeavesOfType(VIEW_TYPE_TIMELINE).length > 0) {
-        return;
-      }
-      this.app.workspace.getRightLeaf(true).setViewState({
-        type: VIEW_TYPE_TIMELINE,
-      });
+  initLeaf() {
+    if (this.app.workspace.getLeavesOfType(VIEW_TYPE_TIMELINE).length > 0) {
+      return;
     }
+    this.app.workspace.getRightLeaf(true).setViewState({
+      type: VIEW_TYPE_TIMELINE,
+    });
+  }
 
-    modeGuard(command: () => any): void {
-      if(this.settings.mode !== DayPlannerMode.Command) {
-        new Notification('Day Planner plugin in File mode', {silent: true, body: 'Switch to Command mode in settings to use this command'});
-        return;
-      } else {
-        command();
-      }
-    }
-
-    async insertDayPlannerIntoCurrentNote(insertTemplate: boolean){
-      try {
-        if(!this.settings.notesToDates){
-          this.settings.notesToDates = [];
-          this.saveData(this.settings)
-        }
-        
-        const view = this.app.workspace.activeLeaf.view;
-        const filePath = view.getState().file;
-        const dayPlannerExists = this.notesForDatesQuery.exists(this.settings.notesToDates);
-        const activeDayPlannerPath = this.notesForDatesQuery.active(this.settings.notesToDates)?.notePath;
-        
-        if(dayPlannerExists && activeDayPlannerPath !== filePath){
-          new Notification('Day Planner exists', {silent: true, body: `A Day Planner for today already exists in ${activeDayPlannerPath}`});
-          return;
-        }
-        if(!dayPlannerExists){
-          this.settings.notesToDates = [];
-          this.settings.notesToDates.push(new NoteForDate(filePath, new Date().toDateString()));
-          await this.saveData(this.settings);
-        }
-        if(insertTemplate) {
-          this.plannerMD.insertPlanner();
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
-    async unlinkDayPlanner() {
-      try {
-        const activePlanner = this.notesForDatesQuery.active(this.settings.notesToDates);
-        this.settings.notesToDates.remove(activePlanner);
-        await this.saveData(this.settings);
-        await this.loadData();
-        this.statusBar.hide(this.statusBar.statusBar);
-        this.timelineView && this.timelineView.update(new PlanSummaryData([]));
-        new Notification('Day Planner reset', 
-          {silent: true, body: `The Day Planner for today has been dissociated from ${activePlanner.notePath} and can be added to another note`});
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    
-    codeMirror = (file: TAbstractFile) => {
-      if(this.file.hasTodayNote()) {
-        // console.log('Active note found, starting CodeMirror monitoring')
-        this.plannerMD.checkIsDayPlannerEditing();
-      } else {
-        // console.log('No active note, skipping CodeMirror monitoring')
-      }
+  modeGuard(command: () => any): void {
+    if (this.settings.mode !== DayPlannerMode.Command) {
+      new Notification('Day Planner plugin in File mode', { silent: true, body: 'Switch to Command mode in settings to use this command' });
+      return;
+    } else {
+      command();
     }
   }
+
+  async insertDayPlannerIntoCurrentNote(insertTemplate: boolean) {
+    try {
+      if (!this.settings.notesToDates) {
+        this.settings.notesToDates = [];
+        this.saveData(this.settings)
+      }
+
+      const view = this.app.workspace.activeLeaf.view;
+      const filePath = view.getState().file;
+      const dayPlannerExists = this.notesForDatesQuery.exists(this.settings.notesToDates);
+      const activeDayPlannerPath = this.notesForDatesQuery.active(this.settings.notesToDates)?.notePath;
+
+      if (dayPlannerExists && activeDayPlannerPath !== filePath) {
+        new Notification('Day Planner exists', { silent: true, body: `A Day Planner for today already exists in ${activeDayPlannerPath}` });
+        return;
+      }
+      if (!dayPlannerExists) {
+        this.settings.notesToDates = [];
+        this.settings.notesToDates.push(new NoteForDate(filePath, new Date().toDateString()));
+        await this.saveData(this.settings);
+      }
+      if (insertTemplate) {
+        this.plannerMD.insertPlanner();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async unlinkDayPlanner() {
+    try {
+      const activePlanner = this.notesForDatesQuery.active(this.settings.notesToDates);
+      if (!activePlanner) {
+        new Notification('No Day Planner found', { silent: true, body: 'No Day Planner found for today' });
+        return;
+      }
+      this.settings.notesToDates.remove(activePlanner);
+      await this.saveData(this.settings);
+      await this.loadData();
+      this.statusBar.hide(this.statusBar.statusBar);
+      this.timelineView && this.timelineView.update(new PlanSummaryData([]));
+      new Notification('Day Planner reset',
+        { silent: true, body: `The Day Planner for today has been dissociated from ${activePlanner.notePath} and can be added to another note` });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  codeMirror = (file: TAbstractFile) => {
+    if (this.file.hasTodayNote()) {
+      // console.log('Active note found, starting CodeMirror monitoring')
+      this.plannerMD.checkIsDayPlannerEditing();
+    } else {
+      // console.log('No active note, skipping CodeMirror monitoring')
+    }
+  }
+}

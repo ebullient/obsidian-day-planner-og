@@ -37,12 +37,23 @@ import { ICONS } from './constants';
 
       new Setting(containerEl)
         .setName('Complete past planner items')
-        .setDesc('The plugin will automatically mark checkboxes for tasks and breaks in the past as complete')
+        .setDesc('The plugin will automatically mark checkboxes for tasks and breaks in the past as complete (x)')
         .addToggle(toggle => 
           toggle
             .setValue(this.plugin.settings.completePastItems)
             .onChange((value:boolean) => {
               this.plugin.settings.completePastItems = value;
+              this.plugin.saveData(this.plugin.settings);
+            }));
+
+      new Setting(containerEl)
+        .setName('Mark in progress planner item')
+        .setDesc('The plugin will automatically mark the textbox for the current item as in progress (/)')
+        .addToggle(toggle => 
+          toggle
+            .setValue(this.plugin.settings.markCurrent)
+            .onChange((value:boolean) => {
+              this.plugin.settings.markCurrent = value;
               this.plugin.saveData(this.plugin.settings);
             }));
 
@@ -104,7 +115,18 @@ import { ICONS } from './constants';
                 this.plugin.saveData(this.plugin.settings);
               });
           });
-      
+
+      new Setting(containerEl)
+          .setName('Consistent BREAK and END labels')
+          .setDesc('Replace BREAK and END task text in your agenda with configured label text (consistency)')
+          .addToggle(toggle =>
+              toggle
+                  .setValue(this.plugin.settings.correctLabels)
+                  .onChange((value:boolean) => {
+                      this.plugin.settings.correctLabels = value;
+                      this.plugin.saveData(this.plugin.settings);
+                  }));
+                  
       new Setting(containerEl)
           .setName('BREAK task label')
           .setDesc('Use this label to mark break between tasks.')

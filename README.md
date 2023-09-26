@@ -1,10 +1,15 @@
 # Day Planner (OG)
+[![GitHub tag (Latest by date)](https://img.shields.io/github/v/tag/ebullient/obsidian-day-planner-og)](https://github.com/ebullient/obsidian-day-planner-og/releases) ![GitHub all releases](https://img.shields.io/github/downloads/ebullient/obsidian-day-planner-og/total?color=success)
 
-This is a fork of the early Obsidian Day Planner plugin written by [James Lynch](https://github.com/lynchjames). 
+The Day Planner plugin is your pomodoro-like assistant for managing daily tasks in Obsidian. 
+Set specific blocks of time for various activities, and the plugin keeps track, offering you real-time updates, impending block-end notifications, and a visual gauge of your day's progress. 
+Not only does it help in planning, but it also actively marks off the blocks as the day progresses and highlights the current block, keeping you on track.
 
-The [Day Planner Plugin](https://github.com/ivan-lednev/obsidian-day-planner) as it has evolved brings new features like drag-and-drop task creation and a weekly view, etc.
-
-This plugin (OG) retains the function and flavor of the original, while keeping up to date with dependencies and API changes. I have hidden the Mermaid Gantt chart function, as the most wobbly. If you need this capability, we can work together to get that stabilized.
+This plugin is a fork of the early Obsidian Day Planner plugin written by [James Lynch](https://github.com/lynchjames). 
+The [Day Planner Plugin](https://github.com/ivan-lednev/obsidian-day-planner) has evolved with new features like drag-and-drop task creation and a weekly view.
+This "OG" version holds onto the essence of the original. 
+In the interest of stability, I have disabled the Mermaid Gantt chart feature. 
+Reach out if you're interested in this feature, and we can work towards reintegrating it.
 
 ## This plugin will change your notes
 
@@ -32,7 +37,9 @@ You can choose to use the [Command Mode](#day-planner-mode) instead to add a Day
 
 ### Day Planner Note
 
-Within the note, you can create a check list with times and tasks which will be automatically be tracked during the day. You can now include headings and other content between tasks. Here is an example:
+Within the note, create a checklist with time blocks and tasks, which will be automatically tracked as the day progresses. You can include headers and other content between tasks for better organization. 
+
+Here’s an example of a Day Planner note:
 
 ```markdown
 ## Day Planner
@@ -76,25 +83,30 @@ I use this time to review what I have done earlier in the day and complete any t
 - [ ] 16:30 Reading
 - [ ] 17:20 Prep for tomorrow's meetings
 - [ ] 18:00 END
+
 ```
 
-This is also provided as a file in [day-planner-example.md](https://github.com/lynchjames/obsidian-day-planner/blob/main/examples/day-planner-example.md).
+This is also provided as a file in [day-planner-example.md](https://raw.githubusercontent.com/ebullient/obsidian-day-planner-og/blob/main/examples/day-planner-example.md).
 
-The Day Planner heading and `---` rule are used to identify the extent of the Day Planner. A heading must be used but can be `#`, `##`, `###` or `####`.
+### Day Planner Note structure
 
-The format of the task list items is important as this is what is used to calculate the times of each task and the intervals between tasks. The format used should be:
+- The `# Day Planner` heading marks the beginning of the Day Planner in a note. This heading can be `#`, `##`, `###` or `####`.
 
- `- [ ] HH:mm Task text` 
- 
- **24 hour times should be used.** 
+- Tasks are defined as `- [ ] HH:mm Task text` 
 
- Nested checklist items or bullets are now also supported to capture sub-tasks of a timed task. Timed tasks must be at the top level of the checkbox list.
+  The **HH:mm** syntax is crucial as it designates the specific block timings. **24 hour times should be used.** 
 
- `BREAK` and `END` are keywords that define breaks and the end to the time tracking for the tasks. They are not case sensitive so `break` and `end` can also be used. Both `BREAK` and `END` keywords are configurable and can be customized in Day Planner settings tab.
+  Nested checklist items or bullets are now also supported to capture sub-tasks of a timed task. Timed tasks must be at the top level of the checkbox list.
 
- `END` is used as an item with a time to give an accurate time interval for the last task, *"Prep for tomorrow's meetings"* at 17:00 in this example.
+- **`BREAK`** and **`END`** are essential keywords defining breaks and the conclusion of the day's tracking. You can customize these in the Day Planner's settings, to replace `BREAK` or `END` with phrases of your choice.
 
- The note will update automatically: tasks in the past will be checked and marked as complete.
+  - `END` serves two purposes: 
+    - It provides an end to the last task of the day, so the duration alloted to that task is accurate.
+    - It marks the end of the Day Planner. If your note has content after the `END` keyword, it will not be updated by the plugin.
+
+### Task updating
+
+If the Day Planner is linked to a note, and "Complete past planner items" is enabled, the plugin will update the note as the day progresses: tasks in the past will be checked and marked as complete.
 
 Using the example above, at 14:30 the note would have automatically updated to:
 
@@ -222,9 +234,12 @@ Using the plugin in command mode, 2 commands are available to link and unlink a 
 
 ![Plugin Commands](https://raw.githubusercontent.com/ebullient/obsidian-day-planner-og/main/images/commands.png)
 
-## Installing
+## Installation
 
-SOON: This version of the plugin is not yet listed as a Community Plugin.
+1. Go to **Community Plugins** in your [Obsidian](https://www.obsidian.md) settings and **disable** Safe Mode
+2. Click on **Browse** and search for "day planner og"
+3. Click install
+4. Use the toggle on the community plugins tab to enable the plugin.
 
 ### Preview with Beta Reviewers Auto-update Tester (BRAT)
 

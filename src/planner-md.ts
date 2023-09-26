@@ -2,7 +2,7 @@ import { MarkdownView, Workspace } from 'obsidian';
 import { DAY_PLANNER_DEFAULT_CONTENT } from './constants';
 import type DayPlannerFile from './file';
 import type Parser from './parser';
-import type { PlanItem, PlanSummaryData } from './plan-data';
+import { PlanItem, PlanSummaryData } from './plan-data';
 import type Progress from './progress';
 import { DayPlannerSettings, NoteForDateQuery} from './settings';
 
@@ -26,67 +26,31 @@ export default class PlannerMarkdown {
     
     async insertPlanner() {
         const filePath = this.file.todayPlannerFilePath();
-        const fileContents = (await this.file.getFileContents(filePath)).split('\n');
         const view = this.workspace.getActiveViewOfType(MarkdownView);
         const currentLine = view.editor.getCursor().line;
-        const insertResult = [...fileContents.slice(0, currentLine), ...DAY_PLANNER_DEFAULT_CONTENT.split('\n'), ...fileContents.slice(currentLine)];
-        this.file.updateFile(filePath, insertResult.join('\n'));
+        await this.file.processFile(filePath, (content) => {
+            const split = content.split('\n');
+            const insertResult = [...split.slice(0, currentLine), ...DAY_PLANNER_DEFAULT_CONTENT.split('\n'), ...split.slice(currentLine)];
+            return insertResult.join('\n');
+        });
     }
 
-    async parseDayPlanner():Promise<PlanSummaryData> {
+    // Combine parse and update in a single function (lock file once.)
+    async processDayPlanner():Promise<PlanSummaryData> {
         try {
+            await this.file.prepareFile();
             const filePath = this.file.todayPlannerFilePath();
-            const fileContent = (await this.file.getFileContents(filePath)).split('\n');
+            const summary = new PlanSummaryData([]);
+            const now = new Date();
 
-            const planData = await this.parser.parseMarkdown(fileContent);
-            return planData;
+            // Read and update file contents
+            await this.file.processFile(filePath, (content) => 
+                    this.parser.parseContent(content, summary, now));
+
+            return summary;
         } catch (error) {
             console.log(error)
         }
-    }
-    
-    async updateDayPlannerMarkdown(planSummary: PlanSummaryData) {
-        if((this.dayPlannerLastEdit + 6000) > new Date().getTime()) {
-            return;
-        }
-        try {
-            const filePath = this.file.todayPlannerFilePath();
-            const fileContents = (await this.file.getFileContents(filePath));
-            const fileContentsArr = fileContents.split('\n');
-
-            planSummary.calculate();
-            if(planSummary.empty){
-                return;
-            }
-            const results = planSummary.items.map((item) => {
-                const result = this.updateItemCompletion(item, item.isPast);
-                return {index: item.matchIndex, replacement: result};
-            });
-
-            results.forEach(result => {
-                fileContentsArr[result.index] = result.replacement;
-            });
-
-            const newContents = fileContentsArr.join('\n');
-            if(fileContents !== newContents) {
-                this.file.updateFile(filePath, newContents);
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    private updateItemCompletion(item: PlanItem, complete: boolean) {
-        let check = this.check(complete);
-        //Override to use current (user inputted) state if plugin setting is enabled
-        if(!this.settings.completePastItems) {
-            check = this.check(item.isCompleted);
-        }
-        return `- [${check}] ${item.rawTime} ${item.text}`;
-    }
-
-    private check(check: boolean) {
-        return check ? 'x' : ' ';
     }
 
     checkIsDayPlannerEditing(){

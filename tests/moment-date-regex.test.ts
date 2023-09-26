@@ -18,7 +18,7 @@ describe("Date formatting", () => {
         resetDateMock = mockDate(date);
     });
     
-    test("No date format formatting using standad format", () => {
+    test("No date format formatting using standard format", () => {
         const input = 'Zettels/{{date}}';
         const expectedOuput = 'Zettels/20201031';
         
