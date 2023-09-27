@@ -37,7 +37,7 @@ export default class Parser {
 
         summary.calculate(now);
 
-        if (!summary.empty) {
+        if (!summary.empty && summary.iAmWriter) {
             summary.items.forEach((item) => {
                 const result = this.updateItemCompletion(item, summary);
                 split[item.line] = result;
@@ -52,7 +52,7 @@ export default class Parser {
             if (match) {
                 // console.log(match);
                 const value = match;
-                const text = value.groups.text?.trim();
+                const text = value.groups.text;
                 const isBreak = this.startsWith(text, this.settings.breakLabel);
                 const isEnd = this.startsWith(text, this.settings.endLabel);
                 const time = new Date();
@@ -90,10 +90,6 @@ export default class Parser {
         }
 
         return `- [${check}] ${item.rawTime} ${item.text}`;
-    }
-
-    private matchValue(input: any, match: string): boolean {
-        return input?.trim().toLocaleLowerCase() === match;
     }
 
     private startsWith(input: any, match: string): boolean {
