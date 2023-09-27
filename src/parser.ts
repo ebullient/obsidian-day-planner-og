@@ -5,12 +5,22 @@ export default class Parser {
     private planItemFactory: PlanItemFactory;
     private PLAN_PARSER_REGEX: RegExp;
     private settings: DayPlannerSettings;
+    private PLAN_START: string;
+    private PLAN_END: RegExp;
+    private PLAN_BREAK: RegExp;
 
     constructor(settings: DayPlannerSettings) {
-        this.settings = settings;
-        this.planItemFactory = new PlanItemFactory(settings);
+        this.updateSettings(settings);
         // do not include break/end in the regex match. Keep it simple
         this.PLAN_PARSER_REGEX = new RegExp('^(-?[\\s]*\\[?(?<completion>.)\\]\\s*?(?<hours>\\d{1,2}):(?<minutes>\\d{2})\\s(?<text>.*?))$', 'i');
+    }
+
+    public updateSettings(settings: DayPlannerSettings) {
+        this.settings = settings;
+        this.planItemFactory = new PlanItemFactory(settings);
+        this.PLAN_START = `# ${this.settings.plannerLabel}`;
+        this.PLAN_BREAK = new RegExp(`(?<=^|\\s)${settings.breakLabel}(?=\\s|$)`);
+        this.PLAN_END = new RegExp(`(?<=^|\\s)${settings.endLabel}(?=\\s|$)`);
     }
 
     parseContent(content: string, summary: PlanSummaryData, now: Date) {
@@ -30,7 +40,7 @@ export default class Parser {
                     summary.addItem(item);
                     inDayPlanner = !item.isEnd;
                 }
-            } else if (line.endsWith('# Day Planner')) {
+            } else if (line.trim().endsWith(this.PLAN_START)) {
                 inDayPlanner = true;
             }
         });
@@ -53,8 +63,8 @@ export default class Parser {
                 // console.log(match);
                 const value = match;
                 const text = value.groups.text;
-                const isBreak = this.startsWith(text, this.settings.breakLabel);
-                const isEnd = this.startsWith(text, this.settings.endLabel);
+                const isBreak = this.matches(text, this.PLAN_BREAK);
+                const isEnd = this.matches(text, this.PLAN_END);
                 const time = new Date();
                 time.setHours(parseInt(value.groups.hours))
                 time.setMinutes(parseInt(value.groups.minutes))
@@ -92,7 +102,7 @@ export default class Parser {
         return `- [${check}] ${item.rawTime} ${item.text}`;
     }
 
-    private startsWith(input: any, match: string): boolean {
-        return input?.trim().toUpperCase().startsWith(match.toUpperCase());
+    private matches(input: any, regex: RegExp): boolean {
+        return regex.test(input.trim().toUpperCase());
     }
 }

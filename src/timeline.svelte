@@ -385,7 +385,7 @@ color:#fff;
         <input id="auto-scroll" type="checkbox" class="toggle" bind:checked={autoScroll}>
       </div>
   </div>
-  {:else}
+{:else}
     <div class="empty-timeline">
       No Planner Data
     </div>
