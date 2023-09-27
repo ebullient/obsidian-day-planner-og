@@ -186,23 +186,31 @@ The status displayed when the end of the tasks is reached:
 
 ### Day Planner Mode
 
-There are 2 modes to use the Day Planner plugin:
+There are 3 modes to use the Day Planner plugin:
 
-**File mode**
+1. **File mode**
 
-The plugin automatically generates day planner notes for each day within a Day Planners folder.
+    The plugin automatically generates day planner notes for each day within a Day Planners folder.
 
-**Command mode**
+2. **Command mode**
 
-Commands are used to insert a Day Planner for today within any note as well as unlinking the Day Planner for today from its current note.
+    Commands are used to 
+    - insert a Day Planner within any note
+    - unlink the Day Planner from the active note (stop updating)
+    - link the Day Planner to a note (start updating)
 
->Note: To add the Day Planner to the current note you first need to Link the Day Planner to the current note by running either one of the commands "Day Planner: Link today's Day Planner to the current Note" or "Day Planner: Add a Day Planner template for today to the current note" from the command palette.
+    To monitor the Day Planner section of a note you need to link the Day Planner to it.
+    Open the note (active leaf), and run one of the following commands from the command palette:
 
-The Day Planner can be placed anywhere within a note as long as the format provided is used. Only the Day Planner section of the note will be updated as time progresses.
+    - "Day Planner: Link today's Day Planner to the current Note"
+    - "Day Planner: Add a Day Planner template for today to the current note"
 
-**Daily mode**
+    The Day Planner can be placed anywhere within a note as long as the format provided is used. 
+    Only the Day Planner section of the note will be updated as time progresses.
 
-The plugin automatically looks for the day planner in daily notes. The Daily notes plugin must be enabled.
+3. **Daily mode**
+
+    The plugin automatically looks for the day planner in daily notes. The Daily notes plugin must be enabled.
 
 ### Complete Past Planner Items
 
