@@ -1,6 +1,7 @@
 import type { DayPlannerSettings } from './settings';
 
 export class PlanSummaryData {
+    iAmWriter: boolean;
     empty: boolean;
     invalid: boolean;
     items: PlanItem[];
@@ -8,7 +9,8 @@ export class PlanSummaryData {
     current: PlanItem;
     next: PlanItem;
 
-    constructor(items: PlanItem[]) {
+    constructor(items: PlanItem[], iAmWriter: boolean) {
+        this.iAmWriter = iAmWriter;
         this.empty = items.length < 1;
         this.invalid = false;
         this.items = items;

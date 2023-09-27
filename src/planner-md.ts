@@ -36,11 +36,11 @@ export default class PlannerMarkdown {
     }
 
     // Combine parse and update in a single function (lock file once.)
-    async processDayPlanner():Promise<PlanSummaryData> {
+    async processDayPlanner(iAmWriter: boolean):Promise<PlanSummaryData> {
         try {
             await this.file.prepareFile();
             const filePath = this.file.todayPlannerFilePath();
-            const summary = new PlanSummaryData([]);
+            const summary = new PlanSummaryData([], iAmWriter);
             const now = new Date();
 
             // Read and update file contents

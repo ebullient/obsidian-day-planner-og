@@ -23,7 +23,7 @@ describe('parser', () => {
     settings.markCurrent = true;
 
     const parser = new Parser(settings);
-    const summary = new PlanSummaryData([]);
+    const summary = new PlanSummaryData([], true);
     const date = new Date();
     date.setHours(12)
     date.setMinutes(25)
