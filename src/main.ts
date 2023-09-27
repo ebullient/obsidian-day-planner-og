@@ -49,6 +49,7 @@ export default class DayPlanner extends Plugin {
   vault: Vault;
   file: DayPlannerFile;
   plannerMD: PlannerMarkdown;
+  parser: Parser;
   statusBar: StatusBar;
   notesForDatesQuery: NoteForDateQuery;
   timelineView: TimelineView;
@@ -74,15 +75,15 @@ export default class DayPlanner extends Plugin {
     console.debug("DPOG: Device/Writer:", this.settings.mode, this.device, this.settings.writer, this.isWriter());
 
     const progress = new Progress();
-    const parser = new Parser(this.settings);
-    this.plannerMD = new PlannerMarkdown(this.app.workspace, this.settings, this.file, parser, progress);
+    this.parser = new Parser(this.settings);
+    this.plannerMD = new PlannerMarkdown(this.app.workspace, this.settings, this.file, this.parser, progress);
 
     this.statusBar = new StatusBar(
       this.settings,
       this.addStatusBarItem(),
       this.app.workspace,
       progress,
-      new PlannerMarkdown(this.app.workspace, this.settings, this.file, parser, progress),
+      new PlannerMarkdown(this.app.workspace, this.settings, this.file, this.parser, progress),
       this.file
     );
     this.statusBar.initStatusBar();
@@ -153,6 +154,7 @@ export default class DayPlanner extends Plugin {
   async handleConfigFileChange() {
     await super.handleConfigFileChange();
     this.settings = Object.assign(this.settings, await this.loadData());
+    this.parser.updateSettings(this.settings);
     const hasNote = await this.file.hasTodayNote();
     console.log("DPOG: update Device/Writer:", this.settings.mode, this.device, this.settings.writer, this.isWriter(), hasNote);
   }

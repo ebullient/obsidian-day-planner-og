@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store';
 import { PlanSummaryData } from './plan-data';
 
-export const planSummary = writable(new PlanSummaryData([]));
+export const planSummary = writable(new PlanSummaryData([], false));
 
 export const nowPosition = writable(0);
 
