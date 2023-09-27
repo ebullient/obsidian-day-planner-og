@@ -7,6 +7,10 @@ ref
 # npm
 node_modules
 
+.vscode
+.idea
+ref
+
 # build
 main.js
 *.js.map
