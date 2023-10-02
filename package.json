@@ -30,7 +30,7 @@
     "jsdom-global": "^3.0.2",
     "moment": "2.29.4",
     "obsidian": "^1.2.8",
-    "svelte": "^3.49.0",
+    "svelte": "^4.2.1",
     "svelte-preprocess": "^5.0.3",
     "tslib": "^2.3.0",
     "typescript": "^5.2.2",
