@@ -86,7 +86,7 @@ I use this time to review what I have done earlier in the day and complete any t
 
 ```
 
-This is also provided as a file in [day-planner-example.md](https://raw.githubusercontent.com/ebullient/obsidian-day-planner-og/blob/main/examples/day-planner-example.md).
+This is also provided as a file in [day-planner-example.md](https://github.com/ebullient/obsidian-day-planner-og/blob/main/examples/day-planner-example.md).
 
 ### Day Planner Note structure
 
