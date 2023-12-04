@@ -6,10 +6,7 @@ ref
 
 # npm
 node_modules
-
-.vscode
-.idea
-ref
+.env
 
 # build
 main.js
