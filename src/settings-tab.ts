@@ -164,6 +164,19 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             this.plugin.settings.correctLabels = value;
             this.plugin.saveData(this.plugin.settings);
           }));
+
+    new Setting(containerEl)
+          .setName('Preserve task values')
+          .setDesc("Preserve these values in the schedule, for example '-' for canceled, or '>' for rescheduled.")
+          .addText(component =>
+            component
+              .setValue(this.plugin.settings.preserveValues ?? "-")
+              .onChange((value: string) => {
+                if (value.length > 0) {
+                  return [...new Set(value)].sort().join("").replace('x', "");
+                }
+                this.plugin.settings.preserveValues = value;
+              })); 
   }
 
   private modeDescriptionContent(): DocumentFragment {

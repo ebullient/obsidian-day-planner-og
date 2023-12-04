@@ -6,7 +6,7 @@
 
 - [x] 8:00 morning stuff
 - [x] 9:00 breakfast
-- [x] 10:00 meeting
+- [-] 10:00 meeting
 - [x] 11:00 BREAK with things
 - [ ] 11:10 reading
 - [ ] 12:00 writing

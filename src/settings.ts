@@ -15,6 +15,7 @@ export class DayPlannerSettings {
   markCurrent: boolean = false;
   correctLabels: boolean = true;
   writer: string = undefined;
+  preserveValues: string = "-";
 }
 export class NoteForDate {
   notePath: string;

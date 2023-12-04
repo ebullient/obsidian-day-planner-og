@@ -61,7 +61,7 @@ export default class DayPlanner extends Plugin {
 
   async onload() {
     console.log("Loading Day Planner plugin v" + this.manifest.version);
-    this.vault = this.app.vault;
+    this.vault = this.app.vault; 
     this.settings = Object.assign(new DayPlannerSettings(), await this.loadData());
     this.notesForDatesQuery = new NoteForDateQuery();
     this.file = new DayPlannerFile(this.vault, this.settings);
