@@ -90,8 +90,10 @@ export default class Parser {
     private updateItemCompletion(item: PlanItem, summary: PlanSummaryData) {
         let check = item.status; // input status
         if (this.settings.completePastItems) {
-            if (item.isPast) {
-                check = check == '-' ? '-' : 'x'; // allow cancelled
+            if (this.settings.preserveValues.includes(check)) {
+                // no-op preserve values
+            } else if (item.isPast) {
+                check = 'x'; 
             } else if (this.settings.markCurrent && summary.isCurrent(item)) {
                 check = '/';
             } else {
