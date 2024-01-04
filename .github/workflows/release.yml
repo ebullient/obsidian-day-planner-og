@@ -58,7 +58,7 @@ jobs:
         git config user.name ${{ env.GH_BOT_NAME }}
         git config user.email ${{ env.GH_BOT_EMAIL }}
 
-        npm install
+        npm ci
         if [[ "${{ github.event.inputs.retry }}" = "true" ]]; then
           npm run preversion
         else

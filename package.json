@@ -11,8 +11,10 @@
     "version": "auto-changelog -p",
     "brat-notes": "run() { auto-changelog --stdout --hide-credit --hide-empty-releases --template .github/changelog.hbs -v $1 --starting-version $1  > release-notes.md; }; run"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "obsidian"
+  ],
+  "author": "Erin Schnabel <ebullientworks@gmail.com>",
   "license": "MIT",
   "devDependencies": {
     "@testing-library/svelte": "^4.0.3",
