@@ -68,12 +68,18 @@
       timelineMeterPosition = summary.empty ? 0 : ((summary.items.first().time.getMinutes()*timelineZoomLevel)*-1) - 1;
     }
 
-    function shortClass(item: PlanItem) {
-      return item.durationMins < (75/timelineZoomLevel) ? 'short' : '';
-    }
-
-    function pastClass(item: PlanItem) {
-      return item.isPast ? 'past' : '';
+    function itemClasses(item: PlanItem) {
+      classes = [];
+      if (item.durationMins < (75/timelineZoomLevel)) {
+        classes.push('short');
+      }
+      if (item.isPast) {
+        classes.push('past');
+      }
+      if (item.isBreak) {
+        classes.push('break');
+      }
+      return classes.join(' ');
     }
 
 </script>
@@ -321,7 +327,7 @@ color:#fff;
     
   <div class="events">
     {#each summary.items as item, i}
-        <div class="event_item event_item_color{i%10+1} {shortClass(item)} {pastClass(item)}" style="height: {item.durationMins*timelineZoomLevel}px;" data-title="{item.rawTime}">
+        <div class="event_item event_item_color{i%10+1} {itemClasses(item)}" style="height: {item.durationMins*timelineZoomLevel}px;" data-title="{item.rawTime}">
           <div class="event_item_contents">
             <div class="ei_Dot {item === summary.current ? 'dot_active' : ''}"></div>
             <div class="ei_Title">{item.rawTime}</div>
