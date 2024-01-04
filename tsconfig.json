@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-"inlineSourceMap": true,
+    "inlineSourceMap": true,
     "inlineSources": true,
     "module": "ESNext",
     "target": "es6",
@@ -17,9 +17,14 @@
     //   "scripthost",
     //   "es2015"
     // ],
-    "types": ["node", "svelte"]
+    "types": [
+      "node",
+      "svelte"
+    ]
   },
-  "exclude": ["node_modules/*"],
+  "exclude": [
+    "node_modules/*"
+  ],
   "include": [
     "**/*.ts"
   ]
