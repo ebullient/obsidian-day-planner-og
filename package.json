@@ -17,7 +17,7 @@
   "author": "Erin Schnabel <ebullientworks@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "@testing-library/svelte": "^4.0.3",
+    "@testing-library/svelte": "^4.0.5",
     "@tsconfig/svelte": "^5.0.2",
     "@types/node": "^20.7.0",
     "@vitest/coverage-v8": "^0.34.6",
