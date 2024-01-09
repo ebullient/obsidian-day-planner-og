@@ -19,8 +19,20 @@ export default class Parser {
         this.settings = settings;
         this.planItemFactory = new PlanItemFactory(settings);
         this.PLAN_START = `# ${this.settings.plannerLabel}`;
-        this.PLAN_BREAK = new RegExp(`(?<=^|\\s)${settings.breakLabel}(?=\\s|$)`);
-        this.PLAN_END = new RegExp(`(?<=^|\\s)${settings.endLabel}(?=\\s|$)`);
+        const startSafe = this.sanitize(settings.breakLabel);
+        const endSafe = this.sanitize(settings.endLabel);
+        this.PLAN_BREAK = new RegExp(`(?<=^|\\s)${startSafe}(?=\\s|$)`);
+        this.PLAN_END = new RegExp(`(?<=^|\\s)${endSafe}(?=\\s|$)`);
+    }
+
+    sanitize(input: string): string {
+        return input
+            .replace(/\./g, "\\.") // escape literal .
+            .replace(/\*/g, "\\*") // escape literal *
+            .replace(/\(/g, "\\(") // escape literal (
+            .replace(/\)/g, "\\)") // escape literal )
+            .replace(/\[/g, "\\[") // escape literal [
+            .replace(/\]/g, "\\]"); // escape literal ]
     }
 
     parseContent(content: string, summary: PlanSummaryData, now: Date) {
