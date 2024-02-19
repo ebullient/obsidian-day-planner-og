@@ -24,7 +24,7 @@
     "auto-changelog": "^2.4.0",
     "builtin-modules": "^3.2.0",
     "dotenv": "^16.4.3",
-    "esbuild": "^0.20.0",
+    "esbuild": "^0.20.1",
     "esbuild-sass-plugin": "^3.0.0",
     "esbuild-svelte": "^0.8.0",
     "ignore-styles": "^5.0.1",
