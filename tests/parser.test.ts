@@ -117,7 +117,6 @@ describe('parser', () => {
 
     expect(summary.items[0].text).to.eql('morning stuff');
     expect(summary.items[0].line).to.eql(6);
-    
 
     expect(updated[summary.items[0].line]).to.eql("- [x] 08:00 morning stuff");
     expect(updated[summary.items[1].line]).to.eql("- [x] 09:00 breakfast");
@@ -156,7 +155,56 @@ describe('parser', () => {
 
     expect(summary.items[0].text).to.eql('morning stuff');
     expect(summary.items[0].line).to.eql(2);
-    
+
+    expect(updated[summary.items[0].line]).to.eql("- [x] 08:00 morning stuff");
+    expect(updated[summary.items[1].line]).to.eql("- [-] 09:00 breakfast");
+    expect(updated[summary.items[2].line]).to.eql("- [>] 10:00 meeting");
+    expect(updated[summary.items[3].line]).to.eql("- [x] 11:00 ☕️ Coffee Break");
+    expect(updated[summary.items[4].line]).to.eql("- [/] 12:10 reading");
+    expect(updated[summary.items[5].line]).to.eql("- [ ] 14:00 🛑 Finish");
+  });
+
+  test('preserve out of order', async () => {
+    const fileContents = fs.readFileSync(path.join(__dirname, 'fixtures/test-ooo.md')).toString();
+
+    const settings = new DayPlannerSettings();
+    settings.preserveValues = '->';
+    settings.markCurrent = true;
+    settings.correctLabels = false;
+
+    const parser = new Parser(settings);
+    const summary = new PlanSummaryData([], true);
+    const date = new Date();
+
+    date.setHours(12)
+    date.setMinutes(25)
+    date.setSeconds(0);
+
+    const updatedContent = parser.parseContent(fileContents, summary, date);
+    expect(updatedContent).to.eql(`## Day Planner
+
+- [x] 08:00 morning stuff
+
+### Middle
+- [x] 11:00 ☕️ Coffee Break
+- [/] 12:10 reading
+
+### Other
+- [-] 09:00 breakfast
+- [>] 10:00 meeting
+- [ ] 14:00 🛑 Finish
+`);
+
+    const updated = updatedContent.split('\n');
+    console.log(updated);
+
+    expect(summary.empty).to.be.false;
+    expect(summary.invalid).to.be.false;
+    expect(summary.items).to.have.lengthOf(6);
+
+    expect(summary.items[0].text).to.eql('morning stuff');
+    expect(summary.items[0].line).to.eql(2);
+
     expect(updated[summary.items[0].line]).to.eql("- [x] 08:00 morning stuff");
     expect(updated[summary.items[1].line]).to.eql("- [-] 09:00 breakfast");
     expect(updated[summary.items[2].line]).to.eql("- [>] 10:00 meeting");

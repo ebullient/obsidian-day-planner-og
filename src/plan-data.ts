@@ -24,6 +24,7 @@ export class PlanSummaryData {
 
     calculate(now: Date): void {
         try {
+            this.items.sort((a, b) => a.time.getTime() - b.time.getTime());
             if (this.items.length === 0) {
                 this.empty = true;
                 return;
