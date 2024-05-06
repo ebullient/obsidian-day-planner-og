@@ -19,7 +19,7 @@
   "devDependencies": {
     "@testing-library/svelte": "^5.1.0",
     "@tsconfig/svelte": "^5.0.4",
-    "@types/node": "^20.12.7",
+    "@types/node": "^20.12.10",
     "@vitest/coverage-v8": "^1.5.2",
     "auto-changelog": "^2.4.0",
     "builtin-modules": "^3.2.0",
