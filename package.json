@@ -34,7 +34,7 @@
     "obsidian": "^1.5.7",
     "svelte": "^4.2.18",
     "svelte-preprocess": "^5.1.4",
-    "tslib": "^2.3.0",
+    "tslib": "^2.6.3",
     "typescript": "^5.4.5",
     "vitest": "^1.2.2"
   },
