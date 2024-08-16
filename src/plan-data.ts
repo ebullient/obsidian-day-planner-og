@@ -8,13 +8,15 @@ export class PlanSummaryData {
     past: PlanItem[];
     current: PlanItem;
     next: PlanItem;
+    filePath: string;
 
-    constructor(items: PlanItem[], iAmWriter: boolean) {
+    constructor(items: PlanItem[], iAmWriter: boolean, filePath: string) {
         this.iAmWriter = iAmWriter;
         this.empty = items.length < 1;
         this.invalid = false;
         this.items = items;
         this.past = [];
+        this.filePath = filePath;
     }
 
     addItem(item: PlanItem) {
@@ -49,7 +51,7 @@ export class PlanSummaryData {
                 }
             });
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
     }
 

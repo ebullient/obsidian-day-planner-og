@@ -84,6 +84,14 @@
     padding-bottom: 0;
 }
 
+.event_item_contents .ei_Copy p {
+    margin: 0;
+    display: inline-block;
+
+    a {
+      color:#fff;
+    }
+}
 
 /* CSS Progress Pie by Olivia Ng | MIT License | github.com/oliviale/css-progress-pie*/
 .progress-pie {
