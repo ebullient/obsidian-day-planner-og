@@ -14,7 +14,7 @@ export default class PlannerMarkdown {
     parser: Parser;
     progress: Progress;
     noteForDateQuery: NoteForDateQuery;
-    
+
     constructor(workspace: Workspace, settings: DayPlannerSettings, file: DayPlannerFile, parser: Parser, progress: Progress){
         this.workspace = workspace;
         this.settings = settings;
@@ -23,7 +23,7 @@ export default class PlannerMarkdown {
         this.progress = progress;
         this.noteForDateQuery = new NoteForDateQuery();
     }
-    
+
     async insertPlanner() {
         const filePath = this.file.todayPlannerFilePath();
         const view = this.workspace.getActiveViewOfType(MarkdownView);
@@ -40,11 +40,11 @@ export default class PlannerMarkdown {
         try {
             await this.file.prepareFile();
             const filePath = this.file.todayPlannerFilePath();
-            const summary = new PlanSummaryData([], iAmWriter);
+            const summary = new PlanSummaryData([], iAmWriter, filePath);
             const now = new Date();
 
             // Read and update file contents
-            await this.file.processFile(filePath, (content) => 
+            await this.file.processFile(filePath, (content) =>
                     this.parser.parseContent(content, summary, now));
 
             return summary;

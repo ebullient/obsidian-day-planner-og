@@ -44,6 +44,7 @@ export default class TimelineView extends ItemView {
         this.timeline = new Timeline({
           target: (this as any).contentEl,
           props: {
+            view: this,
             planSummary: planSummary,
             rootEl: this.containerEl.children[1]
           },

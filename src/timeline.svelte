@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { ItemView, MarkdownRenderer } from 'obsidian';
     import { onMount } from 'svelte';
     import { onDestroy } from "svelte";
     import { planSummary, now, nowPosition, zoomLevel } from './timeline-store';
@@ -7,6 +8,8 @@
 
     export let summary: PlanSummaryData;
     export let rootEl: HTMLElement;
+    export let view: ItemView
+
     let timelineZoomLevel: number;
     let position: number;
     let timelineMeterPosition: number;
@@ -80,6 +83,11 @@
         classes.push('break');
       }
       return classes.join(' ');
+    }
+    function toMarkdown(node: HTMLElement, item) {
+        if (item.text) {
+            MarkdownRenderer.render(view.app, item.text, node, summary.filePath, view);
+        }
     }
 
 </script>
@@ -220,13 +228,13 @@
 .ei_Title{
   margin-left: 26px;
 }
-.ei_Copy{
+.ei_Copy {
   font-size: 15px;
   display: inline-block;
   margin-left: 28px;
 }
 .header_title,.ei_Title,.ce_title{
-color:#fff;
+  color:#fff;
 }
 #now-line {
     height: 4px;
@@ -324,14 +332,14 @@ color:#fff;
           <div class="filled__line__completed" style="height: {nowPosition}px;"></div>
       </div>
   </div>
-    
+
   <div class="events">
     {#each summary.items as item, i}
         <div class="event_item event_item_color{i%10+1} {itemClasses(item)}" style="height: {item.durationMins*timelineZoomLevel}px;" data-title="{item.rawTime}">
           <div class="event_item_contents">
             <div class="ei_Dot {item === summary.current ? 'dot_active' : ''}"></div>
             <div class="ei_Title">{item.rawTime}</div>
-            <div class="ei_Copy">{item.text ?? ''}</div>
+            <div class="ei_Copy" use:toMarkdown={item}></div>
           </div>
         </div>
     {/each}
@@ -340,7 +348,7 @@ color:#fff;
   <div id="now-line" style="top:{position}px; display: {summary.current && !summary.current.isEnd ? 'block' : 'none'}">
       <span class="timeline-time">{moment(currentTime).format('HH:mm')}</span>
   </div>
-  
+
   <div id="scroll-controls">
     <label for="auto-scroll">Track time</label>
     <input id="auto-scroll" type="checkbox" class="toggle" bind:checked={autoScroll}>
