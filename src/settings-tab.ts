@@ -128,7 +128,7 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
               this.plugin.settings.plannerLabel = value
               this.plugin.saveData(this.plugin.settings);
             }
-          })); 
+          }));
 
 
     new Setting(containerEl)
@@ -170,13 +170,14 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
           .setDesc("Preserve these values in the schedule, for example '-' for canceled, or '>' for rescheduled.")
           .addText(component =>
             component
-              .setValue(this.plugin.settings.preserveValues ?? "-")
+              .setValue(this.plugin.settings.preserveValues || "-")
               .onChange((value: string) => {
                 if (value.length > 0) {
-                  return [...new Set(value)].sort().join("").replace('x', "");
+                    // remove duplicates
+                    value = [...new Set(value)].join("").replace('x', "");
                 }
                 this.plugin.settings.preserveValues = value;
-              })); 
+              }));
   }
 
   private modeDescriptionContent(): DocumentFragment {
@@ -207,5 +208,4 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
     descEl.appendChild(a);
     descEl.appendChild(document.createElement('br'));
   }
-
 }
