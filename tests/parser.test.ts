@@ -23,7 +23,7 @@ describe('parser', () => {
     settings.markCurrent = true;
 
     const parser = new Parser(settings);
-    const summary = new PlanSummaryData([], true);
+    const summary = new PlanSummaryData([], true, 'fixtures/test.md');
     const date = new Date();
     date.setHours(12)
     date.setMinutes(25)
@@ -101,7 +101,7 @@ describe('parser', () => {
     settings.markCurrent = false;
 
     const parser = new Parser(settings);
-    const summary = new PlanSummaryData([], true);
+    const summary = new PlanSummaryData([], true, 'fixtures/test-middle.md');
     const date = new Date();
     date.setHours(12)
     date.setMinutes(25)
@@ -138,7 +138,7 @@ describe('parser', () => {
     settings.correctLabels = false;
 
     const parser = new Parser(settings);
-    const summary = new PlanSummaryData([], true);
+    const summary = new PlanSummaryData([], true, 'fixtures/test-keep.md');
     const date = new Date();
 
     date.setHours(12)
@@ -173,7 +173,7 @@ describe('parser', () => {
     settings.correctLabels = false;
 
     const parser = new Parser(settings);
-    const summary = new PlanSummaryData([], true);
+    const summary = new PlanSummaryData([], true, 'fixtures/test-ooo.md');
     const date = new Date();
 
     date.setHours(12)
