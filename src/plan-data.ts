@@ -8,15 +8,13 @@ export class PlanSummaryData {
     past: PlanItem[];
     current: PlanItem;
     next: PlanItem;
-    filePath: string;
 
-    constructor(items: PlanItem[], iAmWriter: boolean, filePath: string) {
+    constructor(items: PlanItem[], iAmWriter: boolean) {
         this.iAmWriter = iAmWriter;
         this.empty = items.length < 1;
         this.invalid = false;
         this.items = items;
         this.past = [];
-        this.filePath = filePath;
     }
 
     addItem(item: PlanItem) {
@@ -51,7 +49,7 @@ export class PlanSummaryData {
                 }
             });
         } catch (error) {
-            console.log(error);
+            console.log(error)
         }
     }
 
@@ -89,6 +87,8 @@ export class PlanItem {
 
 export class PlanItemFactory {
     private settings: DayPlannerSettings;
+    private MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\(([^)]+)\)/g;
+    private WIKI_LINK_REGEX = /\[\[([^\]|]+)(\|([^\]]+))?\]\]/g;
 
     constructor(settings: DayPlannerSettings) {
         this.settings = settings;
@@ -106,6 +106,21 @@ export class PlanItemFactory {
         if (isEnd && this.settings.correctLabels) {
             return this.settings.endLabel;
         }
+        return this.convertLinksToHtml(text);
+    }
+
+    private convertLinksToHtml(text: string): string {
+        // Convert Markdown links to HTML
+        text = text.replace(this.MARKDOWN_LINK_REGEX, (match, p1, p2) => {
+            const target = window.dayPlanner.resolvePath(p2);
+            return `<a href="${target}">${p1}</a>`;
+        });
+        // Convert Wiki links to HTML
+        text = text.replace(this.WIKI_LINK_REGEX, (match, p1, p2, p3) => {
+            const alias = p3 || p1;
+            const target = window.dayPlanner.resolvePath(p1);
+            return `<a href="${target}">${alias}</a>`;
+        });
         return text;
     }
 }

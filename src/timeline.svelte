@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { ItemView, MarkdownRenderer } from 'obsidian';
     import { onMount } from 'svelte';
     import { onDestroy } from "svelte";
     import { planSummary, now, nowPosition, zoomLevel } from './timeline-store';
@@ -8,8 +7,6 @@
 
     export let summary: PlanSummaryData;
     export let rootEl: HTMLElement;
-    export let view: ItemView
-
     let timelineZoomLevel: number;
     let position: number;
     let timelineMeterPosition: number;
@@ -83,11 +80,6 @@
         classes.push('break');
       }
       return classes.join(' ');
-    }
-    function toMarkdown(node: HTMLElement, item) {
-        if (item.text) {
-            MarkdownRenderer.render(view.app, item.text, node, summary.filePath, view);
-        }
     }
 
 </script>
@@ -206,13 +198,13 @@
 .event_item_contents {
   padding-left: 58px;
 }
-.ei_Copy,.ei_Title{
+.ei_Copy,.ei_Title {
     color:var(--text-on-accent);
 }
-.ei_Dot,.ei_Title{
+.ei_Dot,.ei_Title {
   display:inline-block;
 }
-.ei_Dot{
+.ei_Dot {
   position: absolute;
   border-radius:50%;
   width:14px;
@@ -222,10 +214,10 @@
   box-shadow: 0px 0px 52px -18px rgba(0, 0, 0, 0.75);
   z-index: 2;
 }
-.dot_active{
+.dot_active {
   background-color: var(--text-error-hover);
 }
-.ei_Title{
+.ei_Title {
   margin-left: 26px;
 }
 .ei_Copy {
@@ -233,8 +225,8 @@
   display: inline-block;
   margin-left: 28px;
 }
-.header_title,.ei_Title,.ce_title{
-  color:#fff;
+.header_title,.ei_Title,.ce_title {
+color:#fff;
 }
 #now-line {
     height: 4px;
@@ -339,7 +331,7 @@
           <div class="event_item_contents">
             <div class="ei_Dot {item === summary.current ? 'dot_active' : ''}"></div>
             <div class="ei_Title">{item.rawTime}</div>
-            <div class="ei_Copy" use:toMarkdown={item}></div>
+            <div class="ei_Copy">{item.text ?? ''}</div>
           </div>
         </div>
     {/each}
