@@ -4,6 +4,8 @@
     import { planSummary, now, nowPosition, zoomLevel } from './timeline-store';
     import type { PlanItem, PlanSummaryData } from './plan-data';
     const moment = (window as any).moment;
+    const MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\(([^)]+)\)/g;
+    const WIKI_LINK_REGEX = /\[\[([^\]|]+)(\|([^\]]+))?\]\]/g;
 
     export let summary: PlanSummaryData;
     export let rootEl: HTMLElement;
@@ -80,6 +82,22 @@
         classes.push('break');
       }
       return classes.join(' ');
+    }
+
+    function itemText(item: PlanItem): string {
+        let text = item.text ?? '';
+        // Convert Markdown links to HTML
+        text = text.replace(MARKDOWN_LINK_REGEX, (match, p1, p2) => {
+            console.log("markdown link", item.text);
+            return `${p1}`;
+        });
+        // Convert Wiki links to HTML
+        text = text.replace(WIKI_LINK_REGEX, (match, p1, p2, p3) => {
+            console.log("wiki link", item.text);
+            const alias = p3 || p1;
+            return `${alias}`;
+        });
+        return text;
     }
 
 </script>
@@ -331,7 +349,7 @@ color:#fff;
           <div class="event_item_contents">
             <div class="ei_Dot {item === summary.current ? 'dot_active' : ''}"></div>
             <div class="ei_Title">{item.rawTime}</div>
-            <div class="ei_Copy">{item.text ?? ''}</div>
+            <div class="ei_Copy">{itemText(item)}</div>
           </div>
         </div>
     {/each}

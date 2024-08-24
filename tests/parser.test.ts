@@ -4,12 +4,6 @@
 import Moment from "moment";
 Object.defineProperty(window, "moment", { value: Moment });
 
-Object.defineProperty(window, "dayPlanner", {
-    value: {
-        resolvePath: (path: string) => `resolved-${path}`
-    }
-});
-
 import { test, expect, describe } from "vitest";
 import * as fs from 'fs';
 import path from 'path';
@@ -193,11 +187,11 @@ describe('parser', () => {
 
 ### Middle
 - [x] 11:00 ☕️ Coffee Break
-- [/] 12:10 reading <a href="resolved-markdown-link">Markdown</a>
+- [/] 12:10 reading [Markdown](markdown-link)
 
 ### Other
-- [-] 09:00 breakfast <a href="resolved-wikilink">wikilink</a>
-- [>] 10:00 meeting <a href="resolved-wikilink">alias</a>
+- [-] 09:00 breakfast [[wikilink]]
+- [>] 10:00 meeting [[wikilink|alias]]
 - [ ] 14:00 🛑 Finish
 `);
 
@@ -212,10 +206,10 @@ describe('parser', () => {
         expect(summary.items[0].line).to.eql(2);
 
         expect(updated[summary.items[0].line]).to.eql("- [x] 08:00 morning stuff");
-        expect(updated[summary.items[1].line]).to.eql('- [-] 09:00 breakfast <a href="resolved-wikilink">wikilink</a>');
-        expect(updated[summary.items[2].line]).to.eql('- [>] 10:00 meeting <a href="resolved-wikilink">alias</a>');
+        expect(updated[summary.items[1].line]).to.eql('- [-] 09:00 breakfast [[wikilink]]');
+        expect(updated[summary.items[2].line]).to.eql('- [>] 10:00 meeting [[wikilink|alias]]');
         expect(updated[summary.items[3].line]).to.eql("- [x] 11:00 ☕️ Coffee Break");
-        expect(updated[summary.items[4].line]).to.eql('- [/] 12:10 reading <a href="resolved-markdown-link">Markdown</a>');
+        expect(updated[summary.items[4].line]).to.eql('- [/] 12:10 reading [Markdown](markdown-link)');
         expect(updated[summary.items[5].line]).to.eql("- [ ] 14:00 🛑 Finish");
     });
 });
