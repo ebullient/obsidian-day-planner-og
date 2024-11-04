@@ -20,7 +20,7 @@
     "@testing-library/svelte": "^5.2.4",
     "@tsconfig/svelte": "^5.0.4",
     "@vitest/coverage-v8": "^2.1.4",
-    "@types/node": "^22.8.2",
+    "@types/node": "^22.8.7",
     "auto-changelog": "^2.5.0",
     "builtin-modules": "^4.0.0",
     "dotenv": "^16.4.5",
