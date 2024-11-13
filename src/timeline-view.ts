@@ -1,16 +1,19 @@
-import { ItemView, WorkspaceLeaf } from 'obsidian';
 import Timeline from './timeline.svelte';
-import { planSummary, now, nowPosition, zoomLevel } from './timeline-store';
-import { VIEW_TYPE_TIMELINE } from './constants';
-import type { PlanSummaryData } from './plan-data';
+import chroma from "chroma-js";
 import type { DayPlannerSettings } from './settings';
-const moment = (window as any).moment;
+import type { PlanSummaryData } from './plan-data';
+import { ItemView, WorkspaceLeaf } from 'obsidian';
+import { COLORS, VIEW_TYPE_TIMELINE } from './constants';
+import { mount, unmount } from 'svelte';
+import { planSummary, now, timelineColors, timelineHoverColors } from './timeline-store';
 
 export default class TimelineView extends ItemView {
-    private timeline:Timeline;
     private settings: DayPlannerSettings;
+    private colors: string[];
+    component: { $set?: any; $on?: any; };
+    hoverColors: string[];
 
-    constructor(leaf: WorkspaceLeaf, settings: DayPlannerSettings){
+    constructor(leaf: WorkspaceLeaf, settings: DayPlannerSettings, summary: PlanSummaryData) {
         super(leaf);
         this.settings = settings;
     }
@@ -28,25 +31,41 @@ export default class TimelineView extends ItemView {
     }
 
     update(summaryData: PlanSummaryData) {
-        planSummary.update(n => n = summaryData);
-        const currentTime = new Date();
-        now.update(n => n = currentTime);
-        const currentPosition = summaryData.empty ? 0 : this.positionFromTime(currentTime) - this.positionFromTime(summaryData.items.first().time);
-        nowPosition.update(n => n = currentPosition);
-        zoomLevel.update(n => n = this.settings.timelineZoomLevel);
-    }
+        if (!this.colors || summaryData.items.length != this.colors.length) {
+            // recalculate colors if the number of items has changed
+            const colorFrom = this.settings.timelineColorBegin || COLORS.timelineColorBegin;
+            const colorTo = this.settings.timelineColorEnd || COLORS.timelineColorEnd;
 
-    positionFromTime(time: Date) {
-        return moment.duration(moment(time).format('HH:mm')).asMinutes()*this.settings.timelineZoomLevel;
+            const hoverFrom = this.settings.timelineHoverColorBegin || COLORS.timelineHoverColorBegin;
+            const hoverTo = this.settings.timelineHoverColorEnd || COLORS.timelineHoverColorEnd;
+
+            this.colors = chroma
+                .scale([colorFrom, colorTo])
+                .mode('lch')
+                .colors(summaryData.items.length, 'hex');
+            this.hoverColors = chroma
+                .scale([hoverFrom, hoverTo])
+                .mode('lch')
+                .colors(summaryData.items.length, 'hex');
+            timelineColors.set(this.colors);
+            timelineHoverColors.set(this.hoverColors);
+        }
+        planSummary.set(summaryData);
+        now.set(new Date());
     }
 
     async onOpen() {
-        this.timeline = new Timeline({
-          target: (this as any).contentEl,
-          props: {
-            planSummary: planSummary,
-            rootEl: this.containerEl.children[1]
-          },
+        this.component = mount(Timeline, {
+            target: this.contentEl,
+            props: {
+                lineColor: this.settings.lineColor || COLORS.lineColor,
+                zoomLevel: this.settings.timelineZoomLevel || 4,
+                rootEl: this.contentEl
+            },
         });
+    }
+
+    async onClose() {
+        unmount(this.component);
     }
 }
