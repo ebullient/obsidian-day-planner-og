@@ -10,6 +10,14 @@ export const DAY_PLANNER_DEFAULT_CONTENT =
 export const VIEW_TYPE_TIMELINE = 'timeline';
 export const MINUTE_MULTIPLIER = 4;
 
+export const COLORS = {
+    lineColor: '#CAD5CA',
+    timelineColorBegin: '#008183',
+    timelineColorEnd: '#4d194d',
+    timelineHoverColorBegin: '#83003f',
+    timelineHoverColorEnd: '#5d0e2e'
+};
+
 export const ICONS = [
   'any-key',
   'audio-file',
