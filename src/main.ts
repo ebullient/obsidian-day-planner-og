@@ -145,7 +145,8 @@ export default class DayPlanner extends Plugin {
         this.registerView(
             VIEW_TYPE_TIMELINE,
             (leaf: WorkspaceLeaf) =>
-                (this.timelineView = new TimelineView(leaf, this.settings))
+                (this.timelineView = new TimelineView(leaf, this.settings,
+                        new PlanSummaryData([], this.isWriter())))
         );
 
         this.addSettingTab(new DayPlannerSettingsTab(this.app, this));
@@ -225,7 +226,7 @@ export default class DayPlanner extends Plugin {
     async insertDayPlannerIntoCurrentNote(insertTemplate: boolean) {
         try {
             const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-            const filePath = view.getState().file;
+            const filePath = view.file.path;
             const dayPlannerExists = this.notesForDatesQuery.exists(this.settings.notesToDates);
             const activeDayPlannerPath = this.notesForDatesQuery.active(this.settings.notesToDates)?.notePath;
 
