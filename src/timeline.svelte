@@ -96,7 +96,8 @@
     }
 </script>
 
-<div id="day-planner-timeline-container" style="--aside-line: {lineColor}">
+<div id="day-planner-timeline-container"
+    style="--aside-line: color-mix(in srgb, {lineColor} 40%, transparent); --aside-dot: color-mix(in srgb, {lineColor} 60%, transparent); --active-dot: {lineColor}">
     {#if $planSummary.items.length > 0}
         <div
             class="aside aside-x{zoomLevel} filled"
@@ -123,8 +124,10 @@
                                 ? 'dot_active'
                                 : ''}"
                         ></div>
-                        <div class="ei_Title">{item.rawTime}</div>
-                        <div class="ei_Copy">{itemText(item)}</div>
+                        <div class="ei_Item">
+                            <span class="ei_Title">{item.rawTime}</span>
+                            <span class="ei_Copy">{itemText(item)}</span>
+                        </div>
                     </div>
                 </div>
             {/each}
@@ -230,30 +233,29 @@
     .ei_Title {
         color: var(--text-on-accent);
     }
-    .ei_Dot,
-    .ei_Title {
-        display: inline-block;
-    }
     .ei_Dot {
+        display: inline-block;
         position: absolute;
         border-radius: 50%;
         width: 14px;
         height: 14px;
         margin-top: 5px;
-        background-color: var(--aside-line);
+        background-color: var(--aside-dot);
         box-shadow: 0px 0px 52px -18px rgba(0, 0, 0, 0.75);
         z-index: 2;
     }
     .dot_active {
-        background-color: var(--text-error-hover);
+        background-color: var(--active-dot);
+    }
+    .ei_Item {
+        padding-left: 40px;
+        text-indent: -20px;
     }
     .ei_Title {
-        margin-left: 26px;
+        padding-right: 10px;
     }
     .ei_Copy {
         font-size: 15px;
-        display: inline-block;
-        margin-left: 28px;
     }
     .header_title,
     .ei_Title,
