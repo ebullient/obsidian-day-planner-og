@@ -9,7 +9,6 @@ on:
       - '**.scss'
       - '**.css'
   pull_request:
-    branches: [ main ]
     paths:
       - '**.ts'
       - '**.json'
