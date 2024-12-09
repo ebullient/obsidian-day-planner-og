@@ -1,5 +1,9 @@
-import { PlanItem, PlanItemFactory, PlanSummaryData } from './plan-data';
-import type { DayPlannerSettings } from './settings';
+import {
+    type PlanItem,
+    PlanItemFactory,
+    type PlanSummaryData,
+} from "./plan-data";
+import type { DayPlannerSettings } from "./settings";
 
 export default class Parser {
     private planItemFactory: PlanItemFactory;
@@ -12,7 +16,8 @@ export default class Parser {
     constructor(settings: DayPlannerSettings) {
         this.updateSettings(settings);
         // do not include break/end in the regex match. Keep it simple
-        this.PLAN_PARSER_REGEX = new RegExp('^(-?[\\s]*\\[?(?<completion>.)\\]\\s*?(?<hours>\\d{1,2}):(?<minutes>\\d{2})\\s(?<text>.*?))$', 'i');
+        this.PLAN_PARSER_REGEX =
+            /^(-?[\s]*\[?(?<completion>.)\]\s*?(?<hours>\d{1,2}):(?<minutes>\d{2})\s(?<text>.*?))$/i;
     }
 
     public updateSettings(settings: DayPlannerSettings) {
@@ -36,14 +41,14 @@ export default class Parser {
     }
 
     parseContent(content: string, summary: PlanSummaryData, now: Date) {
-        let inDayPlanner = false
-        const split = content.split('\n');
+        let inDayPlanner = false;
+        const split = content.split("\n");
         split.forEach((line, i) => {
-            if (line.length == 0) {
+            if (line.length === 0) {
                 return;
             }
             if (inDayPlanner) {
-                if (line == '---') {
+                if (line === "---") {
                     inDayPlanner = false;
                     return;
                 }
@@ -60,12 +65,12 @@ export default class Parser {
         summary.calculate(now);
 
         if (!summary.empty && summary.iAmWriter) {
-            summary.items.forEach((item) => {
+            for (const item of summary.items) {
                 const result = this.updateItemCompletion(item, summary);
                 split[item.line] = result;
-            });
+            }
         }
-        return split.join('\n');
+        return split.join("\n");
     }
 
     parseLine(index: number, line: string): PlanItem | undefined {
@@ -78,8 +83,8 @@ export default class Parser {
                 const isBreak = this.matches(text, this.PLAN_BREAK);
                 const isEnd = this.matches(text, this.PLAN_END);
                 const time = new Date();
-                time.setHours(parseInt(value.groups.hours))
-                time.setMinutes(parseInt(value.groups.minutes))
+                time.setHours(Number.parseInt(value.groups.hours));
+                time.setMinutes(Number.parseInt(value.groups.minutes));
                 time.setSeconds(0);
 
                 return this.planItemFactory.getPlanItem(
@@ -89,9 +94,9 @@ export default class Parser {
                     isBreak,
                     isEnd,
                     time,
-                    `${value.groups.hours.padStart(2, '0')}:${value.groups.minutes}`,
+                    `${value.groups.hours.padStart(2, "0")}:${value.groups.minutes}`,
                     text,
-                    value[0]
+                    value[0],
                 );
             }
         } catch (error) {
@@ -105,18 +110,18 @@ export default class Parser {
             if (this.settings.preserveValues.includes(check)) {
                 // no-op preserve values
             } else if (item.isPast) {
-                check = 'x'; 
+                check = "x";
             } else if (this.settings.markCurrent && summary.isCurrent(item)) {
-                check = '/';
+                check = "/";
             } else {
-                check = ' ';
+                check = " ";
             }
         }
 
         return `- [${check}] ${item.rawTime} ${item.text}`;
     }
 
-    private matches(input: any, regex: RegExp): boolean {
+    private matches(input: string, regex: RegExp): boolean {
         return regex.test(input.trim().toUpperCase());
     }
 }

@@ -1,5 +1,5 @@
-import type { PlanItem } from './plan-data';
-const moment = (window as any).moment;
+import type { PlanItem } from "./plan-data";
+const moment = window.moment;
 
 export default class Progress {
     getProgress(current: PlanItem, next: PlanItem) {
@@ -11,21 +11,25 @@ export default class Progress {
             const diff = moment.duration(nextMoment.diff(currentMoment));
             const fromStart = moment.duration(nowMoment.diff(currentMoment));
             const untilNext = moment.duration(nextMoment.diff(nowMoment));
-            let percentageComplete = (fromStart.asMinutes() / diff.asMinutes()) * 100;
+            const percentageComplete =
+                (fromStart.asMinutes() / diff.asMinutes()) * 100;
             const minsUntilNext = untilNext.asMinutes().toFixed(0);
             return { percentageComplete, minsUntilNext };
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
-      }
+    }
 
     progressMarkdown(current: PlanItem, next: PlanItem) {
         try {
             const { percentageComplete } = this.getProgress(current, next);
-            const completeCount = Math.floor(20*(percentageComplete/100));
-            return new Array(completeCount).join('->') + new Array(20-completeCount).join('_ ');
+            const completeCount = Math.floor(20 * (percentageComplete / 100));
+            return (
+                new Array(completeCount).join("->") +
+                new Array(20 - completeCount).join("_ ")
+            );
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
     }
 }

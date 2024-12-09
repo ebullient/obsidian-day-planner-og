@@ -1,21 +1,21 @@
 export class DayPlannerSettings {
-    customFolder: string = 'Day Planners';
+    customFolder = "Day Planners";
     mode: DayPlannerMode = DayPlannerMode.File;
-    mermaid: boolean = false;
+    mermaid = false;
     notesToDates: NoteForDate[] = [];
-    completePastItems: boolean = true;
-    circularProgress: boolean = false;
-    nowAndNextInStatusBar: boolean = false;
-    showTaskNotification: boolean = false
-    timelineZoomLevel: number = 4;
-    timelineIcon: string = 'calendar-with-checkmark'
-    plannerLabel: string = "Day Planner";
-    breakLabel: string = "BREAK";
-    endLabel: string = "END";
-    markCurrent: boolean = false;
-    correctLabels: boolean = true;
+    completePastItems = true;
+    circularProgress = false;
+    nowAndNextInStatusBar = false;
+    showTaskNotification = false;
+    timelineZoomLevel = 4;
+    timelineIcon = "calendar-with-checkmark";
+    plannerLabel = "Day Planner";
+    breakLabel = "BREAK";
+    endLabel = "END";
+    markCurrent = false;
+    correctLabels = true;
     writer: string = undefined;
-    preserveValues: string = "-";
+    preserveValues = "-";
     timelineColorBegin: string;
     timelineColorEnd: string;
     timelineHoverColorBegin: string;
@@ -39,12 +39,12 @@ export class NoteForDateQuery {
 
     active(source: NoteForDate[]): NoteForDate {
         const now = new Date().toDateString();
-        return source && source.filter(ntd => ntd.date === now)[0];
+        return source?.filter((ntd) => ntd.date === now)[0];
     }
 }
 
 export enum DayPlannerMode {
-    File,
-    Command,
-    Daily
+    File = "File",
+    Command = "Command",
+    Daily = "Daily",
 }
