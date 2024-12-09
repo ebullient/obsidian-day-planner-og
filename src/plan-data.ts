@@ -1,4 +1,4 @@
-import type { DayPlannerSettings } from './settings';
+import type { DayPlannerSettings } from "./settings";
 
 export class PlanSummaryData {
     iAmWriter: boolean;
@@ -31,7 +31,10 @@ export class PlanSummaryData {
             }
             this.items.forEach((item, i) => {
                 const next = this.items[i + 1];
-                if (item.time < now && (item.isEnd || (next && now < next.time))) {
+                if (
+                    item.time < now &&
+                    (item.isEnd || (next && now < next.time))
+                ) {
                     this.current = item;
                     if (item.isEnd) {
                         item.isPast = true;
@@ -44,17 +47,19 @@ export class PlanSummaryData {
                 }
                 if (next) {
                     const m = window.moment;
-                    const untilNext = m.duration(m(next.time).diff(m(item.time))).asMinutes();
+                    const untilNext = m
+                        .duration(m(next.time).diff(m(item.time)))
+                        .asMinutes();
                     item.durationMins = untilNext;
                 }
             });
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
     }
 
     isCurrent(item: PlanItem) {
-        return item == this.current;
+        return item === this.current;
     }
 }
 
@@ -71,8 +76,17 @@ export class PlanItem {
     text: string;
     raw: string;
 
-    constructor(matchIndex: number, charIndex: number, status: string,
-        isBreak: boolean, isEnd: boolean, time: Date, rawTime: string, text: string, raw: string) {
+    constructor(
+        matchIndex: number,
+        charIndex: number,
+        status: string,
+        isBreak: boolean,
+        isEnd: boolean,
+        time: Date,
+        rawTime: string,
+        text: string,
+        raw: string,
+    ) {
         this.line = matchIndex;
         this.charIndex = charIndex;
         this.status = status;
@@ -92,9 +106,29 @@ export class PlanItemFactory {
         this.settings = settings;
     }
 
-    getPlanItem(matchIndex: number, charIndex: number, status: string, isBreak: boolean, isEnd: boolean, time: Date, rawTime: string, text: string, raw: string) {
+    getPlanItem(
+        matchIndex: number,
+        charIndex: number,
+        status: string,
+        isBreak: boolean,
+        isEnd: boolean,
+        time: Date,
+        rawTime: string,
+        text: string,
+        raw: string,
+    ) {
         const displayText = this.getDisplayText(isBreak, isEnd, text);
-        return new PlanItem(matchIndex, charIndex, status, isBreak, isEnd, time, rawTime, displayText, raw);
+        return new PlanItem(
+            matchIndex,
+            charIndex,
+            status,
+            isBreak,
+            isEnd,
+            time,
+            rawTime,
+            displayText,
+            raw,
+        );
     }
 
     getDisplayText(isBreak: boolean, isEnd: boolean, text: string) {

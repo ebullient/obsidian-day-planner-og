@@ -1,99 +1,103 @@
 <script lang="ts">
-    import { onDestroy, onMount } from "svelte";
-    import { planSummary, now, timelineColors, timelineHoverColors } from "./timeline-store";
-    import type { PlanItem } from "./plan-data";
+import { onDestroy, onMount } from "svelte";
+import type { PlanItem } from "./plan-data";
+import {
+    now,
+    planSummary,
+    timelineColors,
+    timelineHoverColors,
+} from "./timeline-store";
 
-    const moment = window.moment;
-    const MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\(([^)]+)\)/g;
-    const WIKI_LINK_REGEX = /\[\[([^\]|]+)(\|([^\]]+))?\]\]/g;
+const moment = window.moment;
+const MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\(([^)]+)\)/g;
+const WIKI_LINK_REGEX = /\[\[([^\]|]+)(\|([^\]]+))?\]\]/g;
 
-    export let lineColor: string;
-    export let zoomLevel: number;
-    export let rootEl: HTMLElement;
+export let lineColor: string;
+export let zoomLevel: number;
+export let rootEl: HTMLElement;
 
-    console.log("TimelineView.onOpen", { zoomLevel, rootEl });
+console.log("TimelineView.onOpen", { zoomLevel, rootEl });
 
-    let nowPosition: number = 0;
-    let timelineMeterPosition: number = 0;
-    let autoScroll: boolean = true;
+let nowPosition = 0;
+let timelineMeterPosition = 0;
+let autoScroll = true;
 
-    $: {
-        const currentTime = $now;
-        const summaryData = $planSummary;
-        const firstItem = summaryData.items.first();
-        nowPosition = summaryData.empty
-            ? 0
-            : positionFromTime(currentTime) - positionFromTime(firstItem.time);
-        timelineMeterPosition = summaryData.empty
-            ? 0
-            : firstItem.time.getMinutes() * zoomLevel * -1 - 1;
-        scrollToPosition(nowPosition - 150);
+$: {
+    const currentTime = $now;
+    const summaryData = $planSummary;
+    const firstItem = summaryData.items.first();
+    nowPosition = summaryData.empty
+        ? 0
+        : positionFromTime(currentTime) - positionFromTime(firstItem.time);
+    timelineMeterPosition = summaryData.empty
+        ? 0
+        : firstItem.time.getMinutes() * zoomLevel * -1 - 1;
+    scrollToPosition(nowPosition - 150);
+}
+
+function positionFromTime(time: Date) {
+    return (
+        moment.duration(moment(time).format("HH:mm")).asMinutes() * zoomLevel
+    );
+}
+
+onMount(() => {
+    addScrollListener();
+});
+
+onDestroy(() => {
+    removeScrollListener();
+});
+
+function itemClasses(item: PlanItem) {
+    const classes = [];
+    if (item.durationMins < 75 / zoomLevel) {
+        classes.push("short");
     }
-
-    function positionFromTime(time: Date) {
-        return (
-            moment.duration(moment(time).format("HH:mm")).asMinutes() *
-            zoomLevel
-        );
+    if (item.isPast) {
+        classes.push("past");
     }
+    if (item.isBreak) {
+        classes.push("break");
+    }
+    return classes.join(" ");
+}
 
-    onMount(() => {
-        addScrollListener();
+function itemText(item: PlanItem): string {
+    let text = item.text ?? "";
+    // Convert Markdown links to HTML
+    text = text.replace(MARKDOWN_LINK_REGEX, (match, p1, p2) => {
+        console.log("markdown link", item.text);
+        return `${p1}`;
     });
+    // Convert Wiki links to HTML
+    text = text.replace(WIKI_LINK_REGEX, (match, p1, p2, p3) => {
+        console.log("wiki link", item.text);
+        const alias = p3 || p1;
+        return `${alias}`;
+    });
+    return text;
+}
 
-    onDestroy(() => {
+function addScrollListener() {
+    rootEl.addEventListener("scroll", disableAutoScroll);
+}
+
+function removeScrollListener() {
+    rootEl.removeEventListener("scroll", disableAutoScroll);
+}
+
+function scrollToPosition(position: number) {
+    if (autoScroll && !$planSummary.current?.isEnd) {
         removeScrollListener();
-    });
-
-    function itemClasses(item: PlanItem) {
-        const classes = [];
-        if (item.durationMins < 75 / zoomLevel) {
-            classes.push("short");
-        }
-        if (item.isPast) {
-            classes.push("past");
-        }
-        if (item.isBreak) {
-            classes.push("break");
-        }
-        return classes.join(" ");
+        rootEl.scrollTo({ left: 0, top: position, behavior: "smooth" });
+        setTimeout(addScrollListener, 1000);
     }
+}
 
-    function itemText(item: PlanItem): string {
-        let text = item.text ?? "";
-        // Convert Markdown links to HTML
-        text = text.replace(MARKDOWN_LINK_REGEX, (match, p1, p2) => {
-            console.log("markdown link", item.text);
-            return `${p1}`;
-        });
-        // Convert Wiki links to HTML
-        text = text.replace(WIKI_LINK_REGEX, (match, p1, p2, p3) => {
-            console.log("wiki link", item.text);
-            const alias = p3 || p1;
-            return `${alias}`;
-        });
-        return text;
-    }
-
-    function addScrollListener() {
-        rootEl.addEventListener("scroll", disableAutoScroll);
-    }
-
-    function removeScrollListener() {
-        rootEl.removeEventListener("scroll", disableAutoScroll);
-    }
-
-    function scrollToPosition(position: number) {
-        if (autoScroll && !$planSummary.current?.isEnd) {
-            removeScrollListener();
-            rootEl.scrollTo({ left: 0, top: position, behavior: "smooth" });
-            setTimeout(addScrollListener, 1000);
-        }
-    }
-
-    function disableAutoScroll(ev: any) {
-        autoScroll = false;
-    }
+function disableAutoScroll() {
+    autoScroll = false;
+}
 </script>
 
 <div id="day-planner-timeline-container"

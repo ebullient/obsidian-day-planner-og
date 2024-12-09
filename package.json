@@ -4,8 +4,12 @@
   "description": "A plugin to help you plan your day and setup pomodoro timers",
   "main": "main.js",
   "scripts": {
-    "build": "vitest --run && node ./esbuild.config.mjs production",
     "dev": "node ./esbuild.config.mjs",
+    "fix": "npx @biomejs/biome check --write ./src",
+    "format": "npx @biomejs/biome format ./src",
+    "lint": "npx @biomejs/biome lint ./src",
+    "prebuild": "npx @biomejs/biome check ./src",
+    "build": "vitest --run && node ./esbuild.config.mjs production",
     "test": "vitest",
     "preversion": "vitest --run && npm run build",
     "version": "auto-changelog -p",
@@ -17,6 +21,7 @@
   "author": "Erin Schnabel <ebullientworks@gmail.com>",
   "license": "MIT",
   "devDependencies": {
+    "@biomejs/biome": "1.9.4",
     "@testing-library/svelte": "^5.2.5",
     "@tsconfig/svelte": "^5.0.4",
     "@types/chroma-js": "^2.4.4",
