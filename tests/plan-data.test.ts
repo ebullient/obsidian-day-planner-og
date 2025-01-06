@@ -13,7 +13,6 @@ describe('plan-data', () => {
   describe('PlanItemFactory', () => {
     const matchIndex = 1;
     const charIndex = 0;
-    const status = 'x';
     const isBreak = false;
     const isEnd = false;
     const time = new Date('2021-04-11T11:10:00.507Z');
