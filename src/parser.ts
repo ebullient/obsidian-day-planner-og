@@ -24,10 +24,10 @@ export default class Parser {
         this.settings = settings;
         this.planItemFactory = new PlanItemFactory(settings);
         this.PLAN_START = `# ${this.settings.plannerLabel}`;
-        const startSafe = this.sanitize(settings.breakLabel);
+        const breakSafe = this.sanitize(settings.breakLabel);
         const endSafe = this.sanitize(settings.endLabel);
-        this.PLAN_BREAK = new RegExp(`(?<=^|\\s)${startSafe}(?=\\s|$)`);
-        this.PLAN_END = new RegExp(`(?<=^|\\s)${endSafe}(?=\\s|$)`);
+        this.PLAN_BREAK = new RegExp(`^${breakSafe}(?=\\b|$)`, "i");
+        this.PLAN_END = new RegExp(`^${endSafe}(?=\\b|$)`, "i");
     }
 
     sanitize(input: string): string {
@@ -80,8 +80,10 @@ export default class Parser {
                 // console.log(match);
                 const value = match;
                 const text = value.groups.text;
+                // console.log(text);
                 const isBreak = this.matches(text, this.PLAN_BREAK);
                 const isEnd = this.matches(text, this.PLAN_END);
+
                 const time = new Date();
                 time.setHours(Number.parseInt(value.groups.hours));
                 time.setMinutes(Number.parseInt(value.groups.minutes));
@@ -122,6 +124,6 @@ export default class Parser {
     }
 
     private matches(input: string, regex: RegExp): boolean {
-        return regex.test(input.trim().toUpperCase());
+        return regex.test(input.trim());
     }
 }

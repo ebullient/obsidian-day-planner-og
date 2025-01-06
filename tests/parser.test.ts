@@ -5,8 +5,8 @@ import Moment from "moment";
 Object.defineProperty(window, "moment", { value: Moment });
 
 import { test, expect, describe } from "vitest";
-import * as fs from 'fs';
-import path from 'path';
+import * as fs from "node:fs";
+import path from "node:path";
 
 import Parser from '../src/parser';
 import { DayPlannerSettings } from '../src/settings';
@@ -30,8 +30,7 @@ describe('parser', () => {
         date.setSeconds(0);
 
         const updatedContent = parser.parseContent(fileContents, summary, date);
-        const updated = updatedContent.split('\n');
-        console.log(updated);
+        const updated = updatedContent.split("\n");
 
         expect(summary.empty).to.be.false;
         expect(summary.invalid).to.be.false;
@@ -108,8 +107,7 @@ describe('parser', () => {
         date.setSeconds(0);
 
         const updatedContent = parser.parseContent(fileContents, summary, date);
-        const updated = updatedContent.split('\n');
-        console.log(updated);
+        const updated = updatedContent.split("\n");
 
         expect(summary.empty).to.be.false;
         expect(summary.invalid).to.be.false;
@@ -129,46 +127,60 @@ describe('parser', () => {
         expect(updated[summary.items[8].line]).to.eql("- [ ] 14:00 END");
     });
 
-    test('should keep configured values', async () => {
-        const fileContents = fs.readFileSync(path.join(__dirname, 'fixtures/test-keep.md')).toString();
+    test("should keep configured values", async () => {
+        const fileContents = fs
+            .readFileSync(path.join(__dirname, "fixtures/test-keep.md"))
+            .toString();
 
         const settings = new DayPlannerSettings();
-        settings.preserveValues = '->';
+        settings.preserveValues = "->";
         settings.markCurrent = true;
         settings.correctLabels = false;
+        settings.breakLabel = "☕️ Coffee Break";
+        settings.endLabel = "🛑 Finish";
 
         const parser = new Parser(settings);
         const summary = new PlanSummaryData([], true);
         const date = new Date();
 
-        date.setHours(12)
-        date.setMinutes(25)
+        date.setHours(12);
+        date.setMinutes(25);
         date.setSeconds(0);
 
         const updatedContent = parser.parseContent(fileContents, summary, date);
-        const updated = updatedContent.split('\n');
-        console.log(updated);
+        const updated = updatedContent.split("\n");
 
         expect(summary.empty).to.be.false;
         expect(summary.invalid).to.be.false;
         expect(summary.items).to.have.lengthOf(6);
 
-        expect(summary.items[0].text).to.eql('morning stuff');
+        expect(summary.items[0].text).to.eql("morning stuff");
         expect(summary.items[0].line).to.eql(2);
 
-        expect(updated[summary.items[0].line]).to.eql("- [x] 08:00 morning stuff");
+        expect(updated[summary.items[0].line]).to.eql(
+            "- [x] 08:00 morning stuff",
+        );
         expect(updated[summary.items[1].line]).to.eql("- [-] 09:00 breakfast");
         expect(updated[summary.items[2].line]).to.eql("- [>] 10:00 meeting");
-        expect(updated[summary.items[3].line]).to.eql("- [x] 11:00 ☕️ Coffee Break");
+        expect(updated[summary.items[3].line]).to.eql(
+            "- [x] 11:00 ☕️ Coffee Break : Reading",
+        );
         expect(updated[summary.items[4].line]).to.eql("- [/] 12:10 reading");
-        expect(updated[summary.items[5].line]).to.eql("- [ ] 14:00 🛑 Finish");
+        expect(updated[summary.items[5].line]).to.eql(
+            "- [ ] 14:00 🛑 Finish : Things",
+        );
+
+        expect(summary.items[3].isBreak).to.be.true;
+        expect(summary.items[5].isEnd).to.be.true;
     });
 
-    test('preserve out of order', async () => {
-        const fileContents = fs.readFileSync(path.join(__dirname, 'fixtures/test-ooo.md')).toString();
+    test("preserve out of order", async () => {
+        const fileContents = fs
+            .readFileSync(path.join(__dirname, "fixtures/test-ooo.md"))
+            .toString();
 
         const settings = new DayPlannerSettings();
-        settings.preserveValues = '->';
+        settings.preserveValues = "->";
         settings.markCurrent = true;
         settings.correctLabels = false;
 
@@ -176,8 +188,8 @@ describe('parser', () => {
         const summary = new PlanSummaryData([], true);
         const date = new Date();
 
-        date.setHours(12)
-        date.setMinutes(25)
+        date.setHours(12);
+        date.setMinutes(25);
         date.setSeconds(0);
 
         const updatedContent = parser.parseContent(fileContents, summary, date);
@@ -186,30 +198,41 @@ describe('parser', () => {
 - [x] 08:00 morning stuff
 
 ### Middle
+
 - [x] 11:00 ☕️ Coffee Break
 - [/] 12:10 reading [Markdown](markdown-link)
 
 ### Other
+
 - [-] 09:00 breakfast [[wikilink]]
 - [>] 10:00 meeting [[wikilink|alias]]
 - [ ] 14:00 🛑 Finish
 `);
 
-        const updated = updatedContent.split('\n');
-        console.log(updated);
+        const updated = updatedContent.split("\n");
 
         expect(summary.empty).to.be.false;
         expect(summary.invalid).to.be.false;
         expect(summary.items).to.have.lengthOf(6);
 
-        expect(summary.items[0].text).to.eql('morning stuff');
+        expect(summary.items[0].text).to.eql("morning stuff");
         expect(summary.items[0].line).to.eql(2);
 
-        expect(updated[summary.items[0].line]).to.eql("- [x] 08:00 morning stuff");
-        expect(updated[summary.items[1].line]).to.eql('- [-] 09:00 breakfast [[wikilink]]');
-        expect(updated[summary.items[2].line]).to.eql('- [>] 10:00 meeting [[wikilink|alias]]');
-        expect(updated[summary.items[3].line]).to.eql("- [x] 11:00 ☕️ Coffee Break");
-        expect(updated[summary.items[4].line]).to.eql('- [/] 12:10 reading [Markdown](markdown-link)');
+        expect(updated[summary.items[0].line]).to.eql(
+            "- [x] 08:00 morning stuff",
+        );
+        expect(updated[summary.items[1].line]).to.eql(
+            "- [-] 09:00 breakfast [[wikilink]]",
+        );
+        expect(updated[summary.items[2].line]).to.eql(
+            "- [>] 10:00 meeting [[wikilink|alias]]",
+        );
+        expect(updated[summary.items[3].line]).to.eql(
+            "- [x] 11:00 ☕️ Coffee Break",
+        );
+        expect(updated[summary.items[4].line]).to.eql(
+            "- [/] 12:10 reading [Markdown](markdown-link)",
+        );
         expect(updated[summary.items[5].line]).to.eql("- [ ] 14:00 🛑 Finish");
     });
 });

@@ -9,4 +9,3 @@
 - [ ] 13:00 ☕️ COFFEE BREAK
 - [ ] 13:10 meeting
 - [ ] 14:00 🛑 Finish
-
