@@ -1,3 +1,4 @@
+import Logger from "./logger";
 import type { DayPlannerSettings } from "./settings";
 
 export class PlanSummaryData {
@@ -54,7 +55,7 @@ export class PlanSummaryData {
                 }
             });
         } catch (error) {
-            console.log(error);
+            Logger.getInstance().logError("error updating item status", error);
         }
     }
 

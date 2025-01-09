@@ -1,5 +1,6 @@
 <script lang="ts">
 import { onDestroy, onMount } from "svelte";
+import Logger from "./logger";
 import type { PlanItem } from "./plan-data";
 import {
     now,
@@ -16,7 +17,7 @@ export let lineColor: string;
 export let zoomLevel: number;
 export let rootEl: HTMLElement;
 
-console.log("TimelineView.onOpen", { zoomLevel, rootEl });
+Logger.getInstance().logDebug("TimelineView.onOpen", { zoomLevel, rootEl });
 
 let nowPosition = 0;
 let timelineMeterPosition = 0;
@@ -67,12 +68,10 @@ function itemText(item: PlanItem): string {
     let text = item.text ?? "";
     // Convert Markdown links to HTML
     text = text.replace(MARKDOWN_LINK_REGEX, (match, p1, p2) => {
-        console.log("markdown link", item.text);
         return `${p1}`;
     });
     // Convert Wiki links to HTML
     text = text.replace(WIKI_LINK_REGEX, (match, p1, p2, p3) => {
-        console.log("wiki link", item.text);
         const alias = p3 || p1;
         return `${alias}`;
     });

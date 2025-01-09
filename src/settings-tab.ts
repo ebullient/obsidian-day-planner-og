@@ -5,6 +5,7 @@ import {
     Setting,
 } from "obsidian";
 import { COLORS, ICONS } from "./constants";
+import Logger from "./logger";
 import type DayPlanner from "./main";
 import MomentDateRegex from "./moment-date-regex";
 import { DayPlannerMode } from "./settings";
@@ -15,6 +16,15 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
     constructor(app: App, plugin: DayPlanner) {
         super(app, plugin);
         this.plugin = plugin;
+    }
+
+    async save() {
+        await this.plugin.saveData(this.plugin.settings);
+        Logger.getInstance().logDebug("Settings saved");
+    }
+
+    hide(): void {
+        this.save();
     }
 
     display(): void {
@@ -45,7 +55,6 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                             DayPlannerMode[
                                 value as keyof typeof DayPlannerMode
                             ];
-                        this.plugin.saveData(this.plugin.settings);
                     }),
             );
 
@@ -59,7 +68,6 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                     .setValue(this.plugin.settings.completePastItems)
                     .onChange((value: boolean) => {
                         this.plugin.settings.completePastItems = value;
-                        this.plugin.saveData(this.plugin.settings);
                     }),
             );
 
@@ -73,7 +81,6 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                     .setValue(this.plugin.settings.markCurrent)
                     .onChange((value: boolean) => {
                         this.plugin.settings.markCurrent = value;
-                        this.plugin.saveData(this.plugin.settings);
                     }),
             );
 
@@ -85,7 +92,6 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                     .setValue(this.plugin.settings.circularProgress)
                     .onChange((value: boolean) => {
                         this.plugin.settings.circularProgress = value;
-                        this.plugin.saveData(this.plugin.settings);
                     }),
             );
 
@@ -97,7 +103,6 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                     .setValue(this.plugin.settings.nowAndNextInStatusBar)
                     .onChange((value: boolean) => {
                         this.plugin.settings.nowAndNextInStatusBar = value;
-                        this.plugin.saveData(this.plugin.settings);
                     }),
             );
 
@@ -109,7 +114,6 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                     .setValue(this.plugin.settings.showTaskNotification)
                     .onChange((value: boolean) => {
                         this.plugin.settings.showTaskNotification = value;
-                        this.plugin.saveData(this.plugin.settings);
                     }),
             );
 
@@ -125,7 +129,6 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                     .setDynamicTooltip()
                     .onChange((value: number) => {
                         this.plugin.settings.timelineZoomLevel = value;
-                        this.plugin.saveData(this.plugin.settings);
                     }),
             );
 
@@ -145,7 +148,6 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                     )
                     .onChange((value: string) => {
                         this.plugin.settings.timelineIcon = value;
-                        this.plugin.saveData(this.plugin.settings);
                     });
             });
 
@@ -169,7 +171,6 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                     )
                     .onChange((value: string) => {
                         this.plugin.settings.lineColor = value;
-                        this.plugin.saveData(this.plugin.settings);
                     });
                 pickers.lineColor = colorPicker;
             })
@@ -181,7 +182,6 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                     )
                     .onChange((value: string) => {
                         this.plugin.settings.timelineColorBegin = value;
-                        this.plugin.saveData(this.plugin.settings);
                     });
                 pickers.timelineColorBegin = colorPicker;
             })
@@ -193,7 +193,6 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                     )
                     .onChange((value: string) => {
                         this.plugin.settings.timelineColorEnd = value;
-                        this.plugin.saveData(this.plugin.settings);
                     });
                 pickers.timelineColorEnd = colorPicker;
             })
@@ -205,7 +204,6 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                     )
                     .onChange((value: string) => {
                         this.plugin.settings.timelineHoverColorBegin = value;
-                        this.plugin.saveData(this.plugin.settings);
                     });
                 pickers.timelineHoverColorBegin = colorPicker;
             })
@@ -217,7 +215,6 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                     )
                     .onChange((value: string) => {
                         this.plugin.settings.timelineHoverColorEnd = value;
-                        this.plugin.saveData(this.plugin.settings);
                     });
                 pickers.timelineHoverColorEnd = colorPicker;
             })
@@ -252,8 +249,6 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                         pickers.timelineHoverColorEnd.setValue(
                             COLORS.timelineHoverColorEnd,
                         );
-
-                        this.plugin.saveData(this.plugin.settings);
                     });
             });
 
@@ -271,7 +266,6 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                         const value = v.trim();
                         if (value.length > 0) {
                             this.plugin.settings.plannerLabel = value;
-                            this.plugin.saveData(this.plugin.settings);
                         }
                     }),
             );
@@ -284,7 +278,6 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                     .setValue(this.plugin.settings.breakLabel ?? "BREAK")
                     .onChange((value: string) => {
                         this.plugin.settings.breakLabel = value;
-                        this.plugin.saveData(this.plugin.settings);
                     }),
             );
 
@@ -296,7 +289,6 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                     .setValue(this.plugin.settings.endLabel ?? "END")
                     .onChange((value: string) => {
                         this.plugin.settings.endLabel = value;
-                        this.plugin.saveData(this.plugin.settings);
                     }),
             );
 
@@ -310,7 +302,6 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                     .setValue(this.plugin.settings.correctLabels)
                     .onChange((value: boolean) => {
                         this.plugin.settings.correctLabels = value;
-                        this.plugin.saveData(this.plugin.settings);
                     }),
             );
 
@@ -331,6 +322,17 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                                 .replace("x", "");
                         }
                         this.plugin.settings.preserveValues = value;
+                    }),
+            );
+
+        new Setting(containerEl)
+            .setName("Debug")
+            .setDesc("Enable debug messages")
+            .addToggle((toggle) =>
+                toggle
+                    .setValue(this.plugin.settings.debug)
+                    .onChange((value: boolean) => {
+                        this.plugin.settings.debug = value;
                     }),
             );
     }

@@ -1,3 +1,4 @@
+import Logger from "./logger";
 import type { PlanItem } from "./plan-data";
 const moment = window.moment;
 
@@ -16,7 +17,12 @@ export default class Progress {
             const minsUntilNext = untilNext.asMinutes().toFixed(0);
             return { percentageComplete, minsUntilNext };
         } catch (error) {
-            console.log(error);
+            Logger.getInstance().logError(
+                "error updating progress",
+                current,
+                next,
+                error,
+            );
         }
     }
 
@@ -29,7 +35,12 @@ export default class Progress {
                 new Array(20 - completeCount).join("_ ")
             );
         } catch (error) {
-            console.log(error);
+            Logger.getInstance().logError(
+                "error updating markdown",
+                current,
+                next,
+                error,
+            );
         }
     }
 }

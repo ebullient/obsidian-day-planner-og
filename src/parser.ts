@@ -1,3 +1,4 @@
+import Logger from "./logger";
 import {
     type PlanItem,
     PlanItemFactory,
@@ -102,7 +103,7 @@ export default class Parser {
                 );
             }
         } catch (error) {
-            console.log(error);
+            Logger.getInstance().logError("error parsing line", line, error);
         }
     }
 

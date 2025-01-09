@@ -4,6 +4,7 @@ import {
     getDailyNoteSettings,
 } from "obsidian-daily-notes-interface";
 import { DAY_PLANNER_DEFAULT_CONTENT, DAY_PLANNER_FILENAME } from "./constants";
+import Logger from "./logger";
 import MomentDateRegex from "./moment-date-regex";
 import {
     DayPlannerMode,
@@ -71,7 +72,10 @@ export default class DayPlannerFile {
                 await this.createFileIfNotExists(this.todayPlannerFilePath());
             }
         } catch (error) {
-            console.log(error);
+            Logger.getInstance().logError(
+                "error updating file settings",
+                error,
+            );
         }
     }
 
@@ -86,7 +90,7 @@ export default class DayPlannerFile {
                 await this.vault.createFolder(normalizedPath);
             }
         } catch (error) {
-            console.log(error);
+            Logger.getInstance().logError("error creating folder", path, error);
         }
     }
 
@@ -100,7 +104,11 @@ export default class DayPlannerFile {
                 );
             }
         } catch (error) {
-            console.log(error);
+            Logger.getInstance().logError(
+                "file does not exist",
+                fileName,
+                error,
+            );
         }
     }
 
@@ -111,7 +119,11 @@ export default class DayPlannerFile {
         try {
             return await this.vault.adapter.process(filename, handler);
         } catch (error) {
-            console.log(error);
+            Logger.getInstance().logError(
+                "error processing file",
+                filename,
+                error,
+            );
         }
     }
 }
