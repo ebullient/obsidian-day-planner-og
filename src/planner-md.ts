@@ -1,6 +1,7 @@
 import { MarkdownView, type Workspace } from "obsidian";
 import { DAY_PLANNER_DEFAULT_CONTENT } from "./constants";
 import type DayPlannerFile from "./file";
+import Logger from "./logger";
 import type Parser from "./parser";
 import { PlanSummaryData } from "./plan-data";
 import type Progress from "./progress";
@@ -60,7 +61,12 @@ export default class PlannerMarkdown {
 
             return summary;
         } catch (error) {
-            console.log(error);
+            Logger.getInstance().logError(
+                "error processing file",
+                iAmWriter,
+                this.file,
+                error,
+            );
         }
     }
 

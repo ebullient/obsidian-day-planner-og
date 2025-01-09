@@ -1,5 +1,6 @@
 import type { Workspace } from "obsidian";
 import type DayPlannerFile from "./file";
+import Logger from "./logger";
 import type { PlanItem, PlanSummaryData } from "./plan-data";
 import type PlannerMarkdown from "./planner-md";
 import type Progress from "./progress";
@@ -71,7 +72,11 @@ export default class StatusBar {
                 const fileName = this.file.todayPlannerFilePath();
                 this.workspace.openLinkText(fileName, "", false);
             } catch (error) {
-                console.log(error);
+                Logger.getInstance().logError(
+                    "error opening file from status bar",
+                    this.file,
+                    error,
+                );
             }
         });
         status.on("mouseenter", ".day-planner", () => {

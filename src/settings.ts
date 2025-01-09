@@ -1,5 +1,6 @@
 export class DayPlannerSettings {
     customFolder = "Day Planners";
+    debug = false;
     mode: DayPlannerMode = DayPlannerMode.File;
     mermaid = false;
     notesToDates: NoteForDate[] = [];

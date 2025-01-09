@@ -8,6 +8,7 @@ import {
 import { appHasDailyNotesPluginLoaded } from "obsidian-daily-notes-interface";
 import { VIEW_TYPE_TIMELINE } from "./constants";
 import DayPlannerFile from "./file";
+import Logger from "./logger";
 import Parser from "./parser";
 import { PlanSummaryData } from "./plan-data";
 import PlannerMarkdown from "./planner-md";
@@ -75,54 +76,17 @@ export default class DayPlanner extends Plugin {
     }
 
     async onload() {
-        console.log(`Loading Day Planner plugin v${this.manifest.version}`);
+        Logger.getInstance().logInfo(
+            `Loading Day Planner plugin v${this.manifest.version}`,
+        );
         this.vault = this.app.vault;
         this.settings = Object.assign(
             new DayPlannerSettings(),
             await this.loadData(),
         );
+        Logger.getInstance().updateSettings(this.settings);
         this.notesForDatesQuery = new NoteForDateQuery();
-        this.file = new DayPlannerFile(this.vault, this.settings);
 
-        const syncEnabled = this.syncPlugin?.instance !== undefined;
-        this.device = syncEnabled
-            ? this.syncPlugin.instance.deviceName.length > 0
-                ? this.syncPlugin.instance.deviceName
-                : this.syncPlugin.instance.getDefaultDeviceName()
-            : "Unknown";
-        console.debug(
-            "DPOG: Device/Writer:",
-            this.settings.mode,
-            this.device,
-            this.settings.writer,
-            this.isWriter(),
-        );
-
-        const progress = new Progress();
-        this.parser = new Parser(this.settings);
-        this.plannerMD = new PlannerMarkdown(
-            this.app.workspace,
-            this.settings,
-            this.file,
-            this.parser,
-            progress,
-        );
-
-        this.statusBar = new StatusBar(
-            this.settings,
-            this.addStatusBarItem(),
-            this.app.workspace,
-            progress,
-            new PlannerMarkdown(
-                this.app.workspace,
-                this.settings,
-                this.file,
-                this.parser,
-                progress,
-            ),
-            this.file,
-        );
-        this.statusBar.initStatusBar();
         this.registerEvent(this.app.vault.on("modify", this.codeMirror, ""));
 
         this.addCommand({
@@ -194,16 +158,61 @@ export default class DayPlanner extends Plugin {
         });
 
         this.addSettingTab(new DayPlannerSettingsTab(this.app, this));
-        this.setTicker();
-        window.dayPlanner = { resolvePath: this.resolvePath.bind(this) };
         this.register(() => {
             window.dayPlanner = undefined;
         });
+        this.app.workspace.onLayoutReady(this.layoutReady);
     }
+
+    layoutReady = async () => {
+        this.file = new DayPlannerFile(this.vault, this.settings);
+        this.setTicker();
+
+        const syncEnabled = this.syncPlugin?.instance !== undefined;
+        this.device = syncEnabled
+            ? this.syncPlugin.instance.deviceName.length > 0
+                ? this.syncPlugin.instance.deviceName
+                : this.syncPlugin.instance.getDefaultDeviceName()
+            : "Unknown";
+        Logger.getInstance().logInfo(
+            "Device/Writer:",
+            this.settings.mode,
+            this.device,
+            this.settings.writer,
+            this.isWriter(),
+        );
+
+        const progress = new Progress();
+        this.parser = new Parser(this.settings);
+        this.plannerMD = new PlannerMarkdown(
+            this.app.workspace,
+            this.settings,
+            this.file,
+            this.parser,
+            progress,
+        );
+
+        this.statusBar = new StatusBar(
+            this.settings,
+            this.addStatusBarItem(),
+            this.app.workspace,
+            progress,
+            new PlannerMarkdown(
+                this.app.workspace,
+                this.settings,
+                this.file,
+                this.parser,
+                progress,
+            ),
+            this.file,
+        );
+        this.statusBar.initStatusBar();
+        window.dayPlanner = { resolvePath: this.resolvePath.bind(this) };
+    };
 
     async onunload() {
         if (this.interval) {
-            console.debug("DPOG: Clearing ticker");
+            Logger.getInstance().logDebug("Clearing ticker");
             window.clearInterval(this.interval);
         }
     }
@@ -212,9 +221,10 @@ export default class DayPlanner extends Plugin {
         await super.handleConfigFileChange();
         this.settings = Object.assign(this.settings, await this.loadData());
         this.parser.updateSettings(this.settings);
+        Logger.getInstance().updateSettings(this.settings);
         const hasNote = await this.file.hasTodayNote();
-        console.log(
-            "DPOG: update Device/Writer:",
+        Logger.getInstance().logInfo(
+            "update Device/Writer:",
             this.settings.mode,
             this.device,
             this.settings.writer,
@@ -233,12 +243,12 @@ export default class DayPlanner extends Plugin {
 
     setTicker() {
         if (this.interval) {
-            console.debug("DPOG: Clearing ticker");
+            Logger.getInstance().logDebug("Clearing ticker");
             window.clearInterval(this.interval);
             this.interval = undefined;
         }
-        console.log(
-            "DPOG: set Ticker with Device/Writer:",
+        Logger.getInstance().logDebug(
+            "set Ticker with Device/Writer:",
             this.device,
             this.settings.writer,
             this.isWriter(),
@@ -249,7 +259,7 @@ export default class DayPlanner extends Plugin {
     async tick() {
         try {
             if (await this.file.hasTodayNote()) {
-                // console.debug('DPOG: Active note found, starting file processing')
+                // Logger.getInstance().logDebug('Active note found, starting file processing')
                 const planSummary = await this.plannerMD.processDayPlanner(
                     this.isWriter(),
                 );
@@ -259,15 +269,18 @@ export default class DayPlanner extends Plugin {
                 this.settings.mode === DayPlannerMode.Daily &&
                 appHasDailyNotesPluginLoaded()
             ) {
-                // console.debug('DPOG: Clearing status bar & timeline in case daily note was deleted')
+                // Logger.getInstance().logDebug('Clearing status bar & timeline in case daily note was deleted')
                 const planSummary = new PlanSummaryData([], this.isWriter());
                 await this.statusBar.refreshStatusBar(planSummary);
                 this.timelineView?.update(planSummary);
             } else {
-                // console.debug('DPOG: No active note, skipping file processing')
+                // Logger.getInstance().logDebug('No active note, skipping file processing')
             }
         } catch (error) {
-            console.log(error);
+            Logger.getInstance().logError(
+                "error refreshing plan (tick)",
+                error,
+            );
         }
     }
 
@@ -360,7 +373,6 @@ export default class DayPlanner extends Plugin {
 
     codeMirror = (file: TAbstractFile) => {
         if (this.file.hasTodayNote()) {
-            // console.log('Active note found, starting CodeMirror monitoring')
             this.plannerMD.checkIsDayPlannerEditing();
         } else {
             // console.log('No active note, skipping CodeMirror monitoring')
