@@ -25,7 +25,7 @@
     "@testing-library/svelte": "^5.2.5",
     "@tsconfig/svelte": "^5.0.4",
     "@types/chroma-js": "^3.1.0",
-    "@types/node": "^22.10.5",
+    "@types/node": "^22.10.6",
     "@vitest/coverage-v8": "^2.1.5",
     "auto-changelog": "^2.5.0",
     "builtin-modules": "^4.0.0",
