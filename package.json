@@ -34,7 +34,7 @@
     "esbuild-sass-plugin": "^3.3.1",
     "esbuild-svelte": "^0.9.0",
     "ignore-styles": "^5.0.1",
-    "jsdom": "^25.0.1",
+    "jsdom": "^26.0.0",
     "jsdom-global": "^3.0.2",
     "moment": "2.30.1",
     "obsidian": "^1.7.2",
