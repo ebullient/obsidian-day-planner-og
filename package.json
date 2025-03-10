@@ -28,7 +28,7 @@
     "@types/node": "^22.13.5",
     "@vitest/coverage-v8": "^3.0.8",
     "auto-changelog": "^2.5.0",
-    "builtin-modules": "^4.0.0",
+    "builtin-modules": "^5.0.0",
     "dotenv": "^16.4.5",
     "esbuild": "^0.25.0",
     "esbuild-sass-plugin": "^3.3.1",
