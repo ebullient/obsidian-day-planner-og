@@ -115,7 +115,7 @@ function disableAutoScroll() {
         </div>
 
         <div class="events">
-            {#each $planSummary.items as item, i}
+            {#each $planSummary.activeItems() as item, i}
                 <div
                     class="event_item {itemClasses(item)}"
                     style="height: {item.durationMins * zoomLevel}px; --event-color: {$timelineColors[i]}; --event-hover: {$timelineHoverColors[i]};"
