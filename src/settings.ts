@@ -17,6 +17,7 @@ export class DayPlannerSettings {
     correctLabels = true;
     writer: string = undefined;
     preserveValues = "-";
+    hideTimelineValues = "";
     timelineColorBegin: string;
     timelineColorEnd: string;
     timelineHoverColorBegin: string;

@@ -62,6 +62,10 @@ export class PlanSummaryData {
     isCurrent(item: PlanItem) {
         return item === this.current;
     }
+
+    activeItems() {
+        return this.items.filter((item) => !item.hidden);
+    }
 }
 
 export class PlanItem {
@@ -76,6 +80,7 @@ export class PlanItem {
     rawTime: string;
     text: string;
     raw: string;
+    hidden: boolean;
 
     constructor(
         matchIndex: number,
@@ -87,6 +92,7 @@ export class PlanItem {
         rawTime: string,
         text: string,
         raw: string,
+        hidden: boolean,
     ) {
         this.line = matchIndex;
         this.charIndex = charIndex;
@@ -97,6 +103,7 @@ export class PlanItem {
         this.rawTime = rawTime;
         this.text = text;
         this.raw = raw;
+        this.hidden = hidden;
     }
 }
 
@@ -119,6 +126,8 @@ export class PlanItemFactory {
         raw: string,
     ) {
         const displayText = this.getDisplayText(isBreak, isEnd, text);
+        const hidden =
+            status && this.settings.hideTimelineValues.includes(status);
         return new PlanItem(
             matchIndex,
             charIndex,
@@ -129,6 +138,7 @@ export class PlanItemFactory {
             rawTime,
             displayText,
             raw,
+            hidden,
         );
     }
 

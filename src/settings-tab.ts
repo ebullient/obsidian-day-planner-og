@@ -326,6 +326,26 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             );
 
         new Setting(containerEl)
+            .setName("Hide tasks from the timeline")
+            .setDesc(
+                "Hide tasks with these values from the timeline view, for example '-' for canceled, or '>' for rescheduled.",
+            )
+            .addText((component) =>
+                component
+                    .setValue(this.plugin.settings.hideTimelineValues || "-")
+                    .onChange((v: string) => {
+                        let value = v;
+                        if (value.length > 0) {
+                            // remove duplicates
+                            value = [...new Set(value)]
+                                .join("")
+                                .replace("x", "");
+                        }
+                        this.plugin.settings.hideTimelineValues = value;
+                    }),
+            );
+
+        new Setting(containerEl)
             .setName("Debug")
             .setDesc("Enable debug messages")
             .addToggle((toggle) =>
