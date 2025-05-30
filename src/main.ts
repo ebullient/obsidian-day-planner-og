@@ -140,10 +140,11 @@ export default class DayPlanner extends Plugin {
 
         this.addCommand({
             id: "app:set-as-writer",
-            name: `Set current device '${this.device}' as writer`,
+            name: "Set current device as writer",
             callback: async () => {
                 this.settings.writer = this.device;
                 this.save();
+                await this.writerInfo();
             },
             hotkeys: [],
         });
@@ -174,13 +175,7 @@ export default class DayPlanner extends Plugin {
                 ? this.syncPlugin.instance.deviceName
                 : this.syncPlugin.instance.getDefaultDeviceName()
             : "Unknown";
-        Logger.getInstance().logInfo(
-            "Device/Writer:",
-            this.settings.mode,
-            this.device,
-            this.settings.writer,
-            this.isWriter(),
-        );
+        await this.writerInfo();
 
         const progress = new Progress();
         this.parser = new Parser(this.settings);
@@ -222,7 +217,11 @@ export default class DayPlanner extends Plugin {
         this.settings = Object.assign(this.settings, await this.loadData());
         this.parser.updateSettings(this.settings);
         Logger.getInstance().updateSettings(this.settings);
-        const hasNote = await this.file.hasTodayNote();
+        await this.writerInfo();
+    }
+
+    async writerInfo(): Promise<void> {
+        const hasNote = this.file ? await this.file.hasTodayNote() : false;
         Logger.getInstance().logInfo(
             "update Device/Writer:",
             this.settings.mode,
