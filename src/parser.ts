@@ -49,10 +49,6 @@ export default class Parser {
                 return;
             }
             if (inDayPlanner) {
-                if (line === "---") {
-                    inDayPlanner = false;
-                    return;
-                }
                 const item = this.parseLine(i, line);
                 if (item) {
                     summary.addItem(item);
