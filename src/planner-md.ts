@@ -78,7 +78,7 @@ export default class PlannerMarkdown {
         const viewState = view.getState();
         const path = this.file.todayPlannerFilePath();
         if (path && viewState.file === path) {
-            this.dayPlannerLastEdit = new Date().getTime();
+            this.dayPlannerLastEdit = Date.now();
         }
     }
 }
