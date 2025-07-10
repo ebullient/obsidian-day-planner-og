@@ -370,7 +370,7 @@ export default class DayPlanner extends Plugin {
         await this.saveData(this.settings);
     }
 
-    codeMirror = (file: TAbstractFile) => {
+    codeMirror = (_file: TAbstractFile) => {
         if (this.file.hasTodayNote()) {
             this.plannerMD.checkIsDayPlannerEditing();
         } else {

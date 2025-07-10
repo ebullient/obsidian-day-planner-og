@@ -1,5 +1,6 @@
 import Logger from "./logger";
 import type { PlanItem } from "./plan-data";
+
 const moment = window.moment;
 
 export default class Progress {

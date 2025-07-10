@@ -67,11 +67,11 @@ function itemClasses(item: PlanItem) {
 function itemText(item: PlanItem): string {
     let text = item.text ?? "";
     // Convert Markdown links to HTML
-    text = text.replace(MARKDOWN_LINK_REGEX, (match, p1, p2) => {
+    text = text.replace(MARKDOWN_LINK_REGEX, (_match, p1, _p2) => {
         return `${p1}`;
     });
     // Convert Wiki links to HTML
-    text = text.replace(WIKI_LINK_REGEX, (match, p1, p2, p3) => {
+    text = text.replace(WIKI_LINK_REGEX, (_match, p1, _p2, p3) => {
         const alias = p3 || p1;
         return `${alias}`;
     });

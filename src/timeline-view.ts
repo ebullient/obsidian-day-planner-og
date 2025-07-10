@@ -1,16 +1,16 @@
 import chroma from "chroma-js";
 import { ItemView, type WorkspaceLeaf } from "obsidian";
-import { type SvelteComponent, mount, unmount } from "svelte";
+import { mount, type SvelteComponent, unmount } from "svelte";
 import { COLORS, VIEW_TYPE_TIMELINE } from "./constants";
 import type { PlanSummaryData } from "./plan-data";
 import type { DayPlannerSettings } from "./settings";
+import Timeline from "./timeline.svelte";
 import {
     now,
     planSummary,
     timelineColors,
     timelineHoverColors,
 } from "./timeline-store";
-import Timeline from "./timeline.svelte";
 
 export default class TimelineView extends ItemView {
     private settings: DayPlannerSettings;
@@ -21,10 +21,11 @@ export default class TimelineView extends ItemView {
     constructor(
         leaf: WorkspaceLeaf,
         settings: DayPlannerSettings,
-        summary: PlanSummaryData,
+        summaryData: PlanSummaryData,
     ) {
         super(leaf);
         this.settings = settings;
+        planSummary.set(summaryData);
     }
 
     getViewType(): string {

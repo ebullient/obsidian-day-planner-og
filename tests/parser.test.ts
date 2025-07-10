@@ -1,16 +1,16 @@
 /**
  * @vitest-environment jsdom
  */
-import Moment from "moment";
-Object.defineProperty(window, "moment", { value: Moment });
-
-import { test, expect, describe } from "vitest";
 import * as fs from "node:fs";
 import path from "node:path";
-
+import { describe, expect, test } from "vitest";
 import Parser from '../src/parser';
 import { DayPlannerSettings } from '../src/settings';
 import { PlanSummaryData } from "../src/plan-data";
+
+import Moment from "moment";
+Object.defineProperty(window, "moment", { value: Moment });
+
 
 describe('parser', () => {
     test('should return parsed items', async () => {

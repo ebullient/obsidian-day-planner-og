@@ -1,4 +1,4 @@
-import { type Vault, normalizePath } from "obsidian";
+import { normalizePath, type Vault } from "obsidian";
 import {
     appHasDailyNotesPluginLoaded,
     getDailyNoteSettings,
