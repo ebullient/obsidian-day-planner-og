@@ -21,7 +21,7 @@
   "author": "Erin Schnabel <ebullientworks@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "@biomejs/biome": "2.2.2",
+    "@biomejs/biome": "2.2.3",
     "@testing-library/svelte": "^5.2.8",
     "@tsconfig/svelte": "^5.0.5",
     "@types/chroma-js": "^3.1.1",
