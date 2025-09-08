@@ -82,8 +82,8 @@ export default class Parser {
                 const isEnd = this.matches(text, this.PLAN_END);
 
                 const time = new Date();
-                time.setHours(Number.parseInt(value.groups.hours));
-                time.setMinutes(Number.parseInt(value.groups.minutes));
+                time.setHours(Number.parseInt(value.groups.hours, 10));
+                time.setMinutes(Number.parseInt(value.groups.minutes, 10));
                 time.setSeconds(0);
 
                 return this.planItemFactory.getPlanItem(
