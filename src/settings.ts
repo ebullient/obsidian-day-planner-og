@@ -23,6 +23,8 @@ export class DayPlannerSettings {
     timelineHoverColorBegin: string;
     timelineHoverColorEnd: string;
     lineColor: string;
+    autoResumeScroll = true;
+    autoResumeScrollDelay = 3000;
 }
 export class NoteForDate {
     notePath: string;

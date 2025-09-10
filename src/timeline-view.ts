@@ -77,6 +77,7 @@ export default class TimelineView extends ItemView {
                 lineColor: this.settings.lineColor || COLORS.lineColor,
                 zoomLevel: this.settings.timelineZoomLevel || 4,
                 rootEl: this.contentEl,
+                settings: this.settings,
             },
         });
     }

@@ -133,6 +133,55 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             );
 
         new Setting(containerEl)
+            .setName("Auto-resume timeline scroll")
+            .setDesc(
+                "Automatically resume timeline scrolling after manual scroll interaction stops.",
+            )
+            .addToggle((toggle) =>
+                toggle
+                    .setValue(this.plugin.settings.autoResumeScroll)
+                    .onChange((value: boolean) => {
+                        this.plugin.settings.autoResumeScroll = value;
+                    }),
+            );
+
+        const autoResumeDelaySetting = new Setting(containerEl).setName(
+            "Auto-resume scroll delay",
+        );
+
+        const updateAutoResumeDelayDesc = () => {
+            const currentValue = this.plugin.settings.autoResumeScrollDelay;
+            if (currentValue < 1000 || currentValue > 10000) {
+                autoResumeDelaySetting.setDesc(
+                    `⚠️ Value must be between 1000-10000ms. Currently: ${currentValue}ms`,
+                );
+            } else {
+                autoResumeDelaySetting.setDesc(
+                    `Auto-resume timeline scrolling (1000-10000ms) after manual interaction stops. Currently: ${currentValue}ms`,
+                );
+            }
+        };
+
+        updateAutoResumeDelayDesc();
+
+        autoResumeDelaySetting.addText((component) =>
+            component
+                .setValue(this.plugin.settings.autoResumeScrollDelay.toString())
+                .setPlaceholder("3000")
+                .onChange((value: string) => {
+                    const numValue = Number(value);
+                    if (
+                        !Number.isNaN(numValue) &&
+                        numValue >= 1000 &&
+                        numValue <= 10000
+                    ) {
+                        this.plugin.settings.autoResumeScrollDelay = numValue;
+                    }
+                    updateAutoResumeDelayDesc();
+                }),
+        );
+
+        new Setting(containerEl)
             .setName("Timeline icon")
             .setDesc(
                 "The icon of the timeline pane. Reopen timeline pane or restart obsidian to see the change.",
