@@ -2,6 +2,7 @@
 import { onDestroy, onMount } from "svelte";
 import Logger from "./logger";
 import type { PlanItem } from "./plan-data";
+import type { DayPlannerSettings } from "./settings";
 import {
     now,
     planSummary,
@@ -16,12 +17,14 @@ const WIKI_LINK_REGEX = /\[\[([^\]|]+)(\|([^\]]+))?\]\]/g;
 export let lineColor: string;
 export let zoomLevel: number;
 export let rootEl: HTMLElement;
+export let settings: DayPlannerSettings;
 
 Logger.getInstance().logDebug("TimelineView.onOpen", { zoomLevel, rootEl });
 
 let nowPosition = 0;
 let timelineMeterPosition = 0;
 let autoScroll = true;
+let scrollResumeTimer: NodeJS.Timeout | null = null;
 
 $: {
     const currentTime = $now;
@@ -48,6 +51,9 @@ onMount(() => {
 
 onDestroy(() => {
     removeScrollListener();
+    if (scrollResumeTimer) {
+        clearTimeout(scrollResumeTimer);
+    }
 });
 
 function itemClasses(item: PlanItem) {
@@ -96,6 +102,18 @@ function scrollToPosition(position: number) {
 
 function disableAutoScroll() {
     autoScroll = false;
+    if (settings.autoResumeScroll) {
+        // Clear existing timer
+        if (scrollResumeTimer) {
+            clearTimeout(scrollResumeTimer);
+        }
+        
+        // Set new timer to re-enable auto-scroll after delay
+        scrollResumeTimer = setTimeout(() => {
+            autoScroll = true;
+            scrollResumeTimer = null;
+        }, settings.autoResumeScrollDelay);
+    }
 }
 </script>
 
