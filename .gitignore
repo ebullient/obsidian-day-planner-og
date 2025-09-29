@@ -19,3 +19,4 @@ coverage/
 test-vault/
 
 TODO.md
+.claude/settings.local.json
