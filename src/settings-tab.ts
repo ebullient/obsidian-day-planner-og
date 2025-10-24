@@ -59,6 +59,23 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             );
 
         new Setting(containerEl)
+            .setName("File mode folder")
+            .setDesc(
+                "The folder where Day Planner files will be automatically created in File mode. Default: Day Planners",
+            )
+            .addText((text) =>
+                text
+                    .setPlaceholder("Day Planners")
+                    .setValue(
+                        this.plugin.settings.customFolder || "Day Planners",
+                    )
+                    .onChange((value: string) => {
+                        this.plugin.settings.customFolder =
+                            value.trim() || "Day Planners";
+                    }),
+            );
+
+        new Setting(containerEl)
             .setName("Complete past planner items")
             .setDesc(
                 "The plugin will automatically mark checkboxes for tasks and breaks in the past as complete (x)",
@@ -417,7 +434,7 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             .appendText("File mode");
         descEl.appendChild(document.createElement("br"));
         descEl.appendText(
-            "Plugin automatically generates day planner notes for each day within a Day Planners folder.",
+            "Plugin automatically generates day planner notes for each day within a configurable folder.",
         );
         descEl.appendChild(document.createElement("br"));
         descEl
