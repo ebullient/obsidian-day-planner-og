@@ -1,11 +1,11 @@
 import {
+    debounce,
     MarkdownView,
     Plugin,
     type TAbstractFile,
     type Vault,
     type WorkspaceLeaf,
 } from "obsidian";
-import { appHasDailyNotesPluginLoaded } from "obsidian-daily-notes-interface";
 import { VIEW_TYPE_TIMELINE } from "./constants";
 import DayPlannerFile from "./file";
 import Logger from "./logger";
@@ -14,10 +14,11 @@ import { PlanSummaryData } from "./plan-data";
 import PlannerMarkdown from "./planner-md";
 import Progress from "./progress";
 import {
+    type ActiveConfig,
     DayPlannerMode,
     DayPlannerSettings,
-    NoteForDate,
-    NoteForDateQuery,
+    migrateToActivePlan,
+    type OldSettings,
 } from "./settings";
 import { DayPlannerSettingsTab } from "./settings-tab";
 import StatusBar from "./status-bar";
@@ -59,7 +60,7 @@ declare module "obsidian" {
     }
 }
 
-export default class DayPlanner extends Plugin {
+export default class DayPlanner extends Plugin implements ActiveConfig {
     settings: DayPlannerSettings;
     device: string;
     vault: Vault;
@@ -67,25 +68,35 @@ export default class DayPlanner extends Plugin {
     plannerMD: PlannerMarkdown;
     parser: Parser;
     statusBar: StatusBar;
-    notesForDatesQuery: NoteForDateQuery;
     timelineView: TimelineView;
     interval: number;
+
+    current = () => this.settings;
 
     get syncPlugin() {
         return this.app.internalPlugins.getPluginById("sync");
     }
 
     async onload() {
-        Logger.getInstance().logInfo(
-            `Loading Day Planner plugin v${this.manifest.version}`,
-        );
-        this.vault = this.app.vault;
         this.settings = Object.assign(
             new DayPlannerSettings(),
             await this.loadData(),
         );
-        Logger.getInstance().updateSettings(this.settings);
-        this.notesForDatesQuery = new NoteForDateQuery();
+
+        // MIGRATION: Handle old notesToDates field
+        if (migrateToActivePlan(this.settings as OldSettings)) {
+            await this.save();
+        }
+
+        Logger.getInstance().updateSettings(this);
+
+        Logger.getInstance().logInfo(
+            `Loading Day Planner plugin v${this.manifest.version}`,
+        );
+
+        this.vault = this.app.vault;
+        this.parser = new Parser(this);
+        this.file = new DayPlannerFile(this.vault, this);
 
         this.registerEvent(this.app.vault.on("modify", this.codeMirror, ""));
 
@@ -129,12 +140,15 @@ export default class DayPlanner extends Plugin {
         this.addCommand({
             id: "app:show-today-note",
             name: "Show today's Day Planner",
-            callback: () =>
-                this.app.workspace.openLinkText(
-                    this.file.todayPlannerFilePath(),
-                    "",
-                    true,
-                ),
+            callback: () => {
+                if (this.settings.activePlan.notePath) {
+                    this.app.workspace.openLinkText(
+                        this.settings.activePlan.notePath,
+                        "",
+                        true,
+                    );
+                }
+            },
             hotkeys: [],
         });
 
@@ -143,7 +157,7 @@ export default class DayPlanner extends Plugin {
             name: "Set current device as writer",
             callback: async () => {
                 this.settings.writer = this.device;
-                this.save();
+                await this.save();
                 await this.writerInfo();
             },
             hotkeys: [],
@@ -152,49 +166,46 @@ export default class DayPlanner extends Plugin {
         this.registerView(VIEW_TYPE_TIMELINE, (leaf: WorkspaceLeaf) => {
             this.timelineView = new TimelineView(
                 leaf,
-                this.settings,
+                this,
                 new PlanSummaryData([], this.isWriter()),
             );
             return this.timelineView;
         });
 
         this.addSettingTab(new DayPlannerSettingsTab(this.app, this));
+
         this.register(() => {
             window.dayPlanner = undefined;
         });
+
         this.app.workspace.onLayoutReady(this.layoutReady);
     }
 
     layoutReady = async () => {
-        this.file = new DayPlannerFile(this.vault, this.settings);
-        this.setTicker();
-
         const syncEnabled = this.syncPlugin?.instance !== undefined;
         this.device = syncEnabled
             ? this.syncPlugin.instance.deviceName.length > 0
                 ? this.syncPlugin.instance.deviceName
                 : this.syncPlugin.instance.getDefaultDeviceName()
             : "Unknown";
-        await this.writerInfo();
 
         const progress = new Progress();
-        this.parser = new Parser(this.settings);
         this.plannerMD = new PlannerMarkdown(
             this.app.workspace,
-            this.settings,
+            this,
             this.file,
             this.parser,
             progress,
         );
 
         this.statusBar = new StatusBar(
-            this.settings,
+            this,
             this.addStatusBarItem(),
             this.app.workspace,
             progress,
             new PlannerMarkdown(
                 this.app.workspace,
-                this.settings,
+                this,
                 this.file,
                 this.parser,
                 progress,
@@ -202,6 +213,10 @@ export default class DayPlanner extends Plugin {
             this.file,
         );
         this.statusBar.initStatusBar();
+
+        await this.tick();
+
+        this.setTicker();
         window.dayPlanner = { resolvePath: this.resolvePath.bind(this) };
     };
 
@@ -214,21 +229,32 @@ export default class DayPlanner extends Plugin {
 
     async handleConfigFileChange() {
         await super.handleConfigFileChange();
-        this.settings = Object.assign(this.settings, await this.loadData());
-        this.parser.updateSettings(this.settings);
-        Logger.getInstance().updateSettings(this.settings);
-        await this.writerInfo();
+        this.onExternalSettingsChange();
     }
 
+    public onExternalSettingsChange = debounce(
+        async () => {
+            Logger.getInstance().logInfo("external settings changed");
+            this.settings = Object.assign(
+                {},
+                this.settings,
+                await this.loadData(),
+            );
+            this.parser.updateSettings();
+            await this.writerInfo();
+        },
+        2000,
+        true,
+    );
+
     async writerInfo(): Promise<void> {
-        const hasNote = this.file ? await this.file.hasTodayNote() : false;
         Logger.getInstance().logInfo(
             "update Device/Writer:",
-            this.settings.mode,
             this.device,
-            this.settings.writer,
             this.isWriter(),
-            hasNote,
+            this.settings.mode,
+            this.settings.writer,
+            this.settings.activePlan,
         );
     }
 
@@ -257,23 +283,48 @@ export default class DayPlanner extends Plugin {
 
     async tick() {
         try {
-            if (await this.file.hasTodayNote()) {
-                // Logger.getInstance().logDebug('Active note found, starting file processing')
+            const now = new Date();
+            const originalPlan = this.settings.activePlan;
+
+            // Check if activePlan exists and is valid
+            if (this.settings.activePlan.notePath) {
+                const anchorTime = new Date(
+                    this.settings.activePlan.anchorDate,
+                );
+                const hoursSinceAnchor =
+                    (now.getTime() - anchorTime.getTime()) / (1000 * 60 * 60);
+
+                // beyond 24 hours: rotate or expire
+                if (hoursSinceAnchor >= 24) {
+                    this.settings.activePlan = {};
+                }
+            }
+
+            // Doesn't exist yet or was beyond 24 hours
+            if (
+                this.isWriter() &&
+                !this.settings.activePlan.notePath &&
+                this.settings.mode !== DayPlannerMode.Command
+            ) {
+                await this.rotateOrCreatePlan();
+            }
+
+            if (this.settings.activePlan.notePath) {
                 const planSummary = await this.plannerMD.processDayPlanner(
                     this.isWriter(),
+                    this.settings.activePlan.notePath,
                 );
                 await this.statusBar.refreshStatusBar(planSummary);
                 this.timelineView?.update(planSummary);
-            } else if (
-                this.settings.mode === DayPlannerMode.Daily &&
-                appHasDailyNotesPluginLoaded()
-            ) {
-                // Logger.getInstance().logDebug('Clearing status bar & timeline in case daily note was deleted')
+            } else if (this.settings.mode === DayPlannerMode.Daily) {
+                // Clear UI - waiting for daily note to be created
                 const planSummary = new PlanSummaryData([], this.isWriter());
                 await this.statusBar.refreshStatusBar(planSummary);
                 this.timelineView?.update(planSummary);
-            } else {
-                // Logger.getInstance().logDebug('No active note, skipping file processing')
+            }
+
+            if (originalPlan.notePath !== this.settings.activePlan.notePath) {
+                this.save();
             }
         } catch (error) {
             Logger.getInstance().logError(
@@ -303,36 +354,72 @@ export default class DayPlanner extends Plugin {
         command();
     }
 
+    // Daily mode
+    async rotateOrCreatePlan() {
+        // Compute new anchor for current time
+        const newAnchor = this.parser.getAnchorDate();
+
+        // Try to find/create daily note for new anchor
+        const dailyNotePath = await this.file.createDailyNote(newAnchor);
+
+        if (dailyNotePath) {
+            // Found or can create daily note - update activePlan
+            this.settings.activePlan = {
+                notePath: dailyNotePath,
+                anchorDate: newAnchor.getTime(),
+            };
+            await this.save();
+
+            // Process the new daily note
+            const planSummary = await this.plannerMD.processDayPlanner(
+                this.isWriter(),
+                dailyNotePath,
+            );
+            await this.statusBar.refreshStatusBar(planSummary);
+            this.timelineView?.update(planSummary);
+        } else {
+            // Daily note doesn't exist yet - clear activePlan and UI
+            this.settings.activePlan = {};
+            await this.save();
+
+            const planSummary = new PlanSummaryData([], this.isWriter());
+            await this.statusBar.refreshStatusBar(planSummary);
+            this.timelineView?.update(planSummary);
+        }
+    }
+
+    // Command mode
     async insertDayPlannerIntoCurrentNote(insertTemplate: boolean) {
         try {
             const view = this.app.workspace.getActiveViewOfType(MarkdownView);
             const filePath = view.file.path;
-            const dayPlannerExists = this.notesForDatesQuery.exists(
-                this.settings.notesToDates,
-            );
-            const activeDayPlannerPath = this.notesForDatesQuery.active(
-                this.settings.notesToDates,
-            )?.notePath;
 
-            this.settings.notesToDates = this.settings.notesToDates || [];
-            if (dayPlannerExists && activeDayPlannerPath !== filePath) {
+            // Check if activePlan already exists for a different file
+            if (
+                this.settings.activePlan.notePath &&
+                this.settings.activePlan.notePath !== filePath
+            ) {
                 new Notification("Day Planner exists", {
                     silent: true,
-                    body: `A Day Planner for today already exists in ${activeDayPlannerPath}`,
+                    body: `A Day Planner for today already exists in ${this.settings.activePlan.notePath}`,
                 });
                 return;
             }
-            if (!dayPlannerExists) {
-                this.settings.notesToDates = [
-                    new NoteForDate(filePath, new Date().toDateString()),
-                ];
-            } else if (!this.settings.notesToDates) {
-                this.settings.notesToDates = [];
-            }
-            await this.save();
 
             if (insertTemplate) {
-                this.plannerMD.insertPlanner();
+                this.plannerMD.insertPlanner(filePath);
+            }
+
+            // Only set activePlan if it doesn't exist yet
+            if (!this.settings.activePlan.notePath) {
+                // Use parser to compute anchor date (reuses existing logic)
+                const anchor = this.parser.getAnchorDate();
+
+                this.settings.activePlan = {
+                    notePath: filePath,
+                    anchorDate: anchor.getTime(),
+                };
+                await this.save();
             }
         } catch (error) {
             console.error(error);
@@ -341,25 +428,21 @@ export default class DayPlanner extends Plugin {
 
     async unlinkDayPlanner() {
         try {
-            const activePlanner = this.notesForDatesQuery.active(
-                this.settings.notesToDates,
-            );
-            if (!activePlanner) {
-                new Notification("No Day Planner found", {
-                    silent: true,
-                    body: "No Day Planner found for today",
-                });
+            if (!this.settings.activePlan.notePath) {
                 return;
             }
-            this.settings.notesToDates = this.settings.notesToDates || [];
-            this.settings.notesToDates.remove(activePlanner);
+
+            const notePath = this.settings.activePlan.notePath;
+
+            this.settings.activePlan = {};
             await this.save();
 
             this.statusBar.hide(this.statusBar.statusBar);
             this.timelineView?.update(new PlanSummaryData([], this.isWriter()));
+
             new Notification("Day Planner reset", {
                 silent: true,
-                body: `The Day Planner for today has been dissociated from ${activePlanner.notePath} and can be added to another note`,
+                body: `The Day Planner for today has been dissociated from ${notePath} and can be added to another note`,
             });
         } catch (error) {
             console.error(error);
@@ -371,8 +454,10 @@ export default class DayPlanner extends Plugin {
     }
 
     codeMirror = (_file: TAbstractFile) => {
-        if (this.file.hasTodayNote()) {
-            this.plannerMD.checkIsDayPlannerEditing();
+        if (this.settings.activePlan.notePath) {
+            this.plannerMD.checkIsDayPlannerEditing(
+                this.settings.activePlan.notePath,
+            );
         } else {
             // console.log('No active note, skipping CodeMirror monitoring')
         }
@@ -380,8 +465,13 @@ export default class DayPlanner extends Plugin {
 
     // Static method to return the current file
     resolvePath(link: string): string {
-        const path = this.file.todayPlannerFilePath();
-        const file = this.app.metadataCache.getFirstLinkpathDest(link, path);
-        return file.path;
+        if (this.settings.activePlan.notePath) {
+            const file = this.app.metadataCache.getFirstLinkpathDest(
+                link,
+                this.settings.activePlan.notePath,
+            );
+            return file.path || "";
+        }
+        return "";
     }
 }

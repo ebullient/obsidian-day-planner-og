@@ -412,6 +412,27 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             );
 
         new Setting(containerEl)
+            .setName("New day starts at")
+            .setDesc(
+                "Hour when a new day begins (0-23). Times before this hour are treated as next day. Default: 0 (midnight). Example: Set to 4 if you work until 3 AM and want those tasks in the same planner.",
+            )
+            .addText((text) =>
+                text
+                    .setPlaceholder("0")
+                    .setValue(this.plugin.settings.newDayStartsAt.toString())
+                    .onChange((value: string) => {
+                        const numValue = Number.parseInt(value, 10);
+                        if (
+                            !Number.isNaN(numValue) &&
+                            numValue >= 0 &&
+                            numValue <= 23
+                        ) {
+                            this.plugin.settings.newDayStartsAt = numValue;
+                        }
+                    }),
+            );
+
+        new Setting(containerEl)
             .setName("Debug")
             .setDesc("Enable debug messages")
             .addToggle((toggle) =>

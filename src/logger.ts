@@ -1,8 +1,8 @@
-import type { DayPlannerSettings } from "./settings";
+import type { ActiveConfig } from "./settings";
 
 export default class Logger {
     private static instance: Logger;
-    settings: DayPlannerSettings;
+    config: ActiveConfig;
 
     public static getInstance(): Logger {
         if (!Logger.instance) {
@@ -11,14 +11,14 @@ export default class Logger {
         return Logger.instance;
     }
 
-    updateSettings(settings: DayPlannerSettings) {
-        this.settings = settings;
+    updateSettings(config: ActiveConfig) {
+        this.config = config;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     // biome-ignore lint/suspicious/noExplicitAny: generous for logging any value
     logDebug(message: string, ...optionalParams: any[]): void {
-        if (!this.settings || this.settings.debug) {
+        if (this.config.current().debug) {
             console.debug("(DP)", message, ...optionalParams);
         }
     }

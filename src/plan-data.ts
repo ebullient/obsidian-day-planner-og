@@ -1,5 +1,5 @@
 import Logger from "./logger";
-import type { DayPlannerSettings } from "./settings";
+import type { ActiveConfig } from "./settings";
 
 export class PlanSummaryData {
     iAmWriter: boolean;
@@ -108,10 +108,10 @@ export class PlanItem {
 }
 
 export class PlanItemFactory {
-    private settings: DayPlannerSettings;
+    private config: ActiveConfig;
 
-    constructor(settings: DayPlannerSettings) {
-        this.settings = settings;
+    constructor(config: ActiveConfig) {
+        this.config = config;
     }
 
     getPlanItem(
@@ -127,7 +127,7 @@ export class PlanItemFactory {
     ) {
         const displayText = this.getDisplayText(isBreak, isEnd, text);
         const hidden =
-            status && this.settings.hideTimelineValues.includes(status);
+            status && this.config.current().hideTimelineValues.includes(status);
         return new PlanItem(
             matchIndex,
             charIndex,
@@ -143,11 +143,12 @@ export class PlanItemFactory {
     }
 
     getDisplayText(isBreak: boolean, isEnd: boolean, text: string) {
-        if (isBreak && this.settings.correctLabels) {
-            return this.settings.breakLabel;
+        const settings = this.config.current();
+        if (isBreak && settings.correctLabels) {
+            return settings.breakLabel;
         }
-        if (isEnd && this.settings.correctLabels) {
-            return this.settings.endLabel;
+        if (isEnd && settings.correctLabels) {
+            return settings.endLabel;
         }
         return text;
     }
