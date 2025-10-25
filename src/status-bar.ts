@@ -4,10 +4,10 @@ import Logger from "./logger";
 import type { PlanItem, PlanSummaryData } from "./plan-data";
 import type PlannerMarkdown from "./planner-md";
 import type Progress from "./progress";
-import type { DayPlannerSettings } from "./settings";
+import type { ActiveConfig } from "./settings";
 
 export default class StatusBar {
-    settings: DayPlannerSettings;
+    config: ActiveConfig;
     file: DayPlannerFile;
     statusBar: HTMLElement;
     statusBarAdded: boolean;
@@ -25,14 +25,14 @@ export default class StatusBar {
     currentTime: string;
 
     constructor(
-        settings: DayPlannerSettings,
+        config: ActiveConfig,
         statusBar: HTMLElement,
         workspace: Workspace,
         progress: Progress,
         plannerMD: PlannerMarkdown,
         file: DayPlannerFile,
     ) {
-        this.settings = settings;
+        this.config = config;
         this.statusBar = statusBar;
         this.workspace = workspace;
         this.progress = progress;
@@ -69,8 +69,11 @@ export default class StatusBar {
     private setupStatusBarEvents(status: HTMLDivElement) {
         status.onClickEvent(async () => {
             try {
-                const fileName = this.file.todayPlannerFilePath();
-                this.workspace.openLinkText(fileName, "", false);
+                const settings = this.config.current();
+                const fileName = settings.activePlan.notePath;
+                if (fileName) {
+                    this.workspace.openLinkText(fileName, "", false);
+                }
             } catch (error) {
                 Logger.getInstance().logError(
                     "error opening file from status bar",
@@ -117,16 +120,17 @@ export default class StatusBar {
     }
 
     private updateProgress(current: PlanItem, next: PlanItem) {
+        const settings = this.config.current();
         if (!current || !next || current.isEnd) {
             this.hideProgress();
-            this.statusBarText.innerText = this.settings.endLabel;
+            this.statusBarText.innerText = settings.endLabel;
             return;
         }
         const { percentageComplete, minsUntilNext } = this.progress.getProgress(
             current,
             next,
         );
-        if (this.settings.circularProgress) {
+        if (settings.circularProgress) {
             this.hide(this.statusBarProgress);
             this.progressCircle(percentageComplete, current);
         } else {
@@ -162,16 +166,18 @@ export default class StatusBar {
         next: PlanItem,
         percentageComplete: number,
     ) {
+        const settings = this.config.current();
         const minsUntilNext = lastMinsUntil === "0" ? "1" : lastMinsUntil;
         const minsText = `${minsUntilNext} min${minsUntilNext === "1" ? "" : "s"}`;
-        if (this.settings.nowAndNextInStatusBar) {
+
+        if (settings.nowAndNextInStatusBar) {
             this.statusBarText.innerHTML = `<strong>Now</strong> ${current.rawTime} ${this.ellipsis(current.text, 10)}`;
             this.nextText.innerHTML = `<strong>Next</strong> ${next.rawTime} ${this.ellipsis(next.text, 10)}`;
             this.show(this.nextText);
         } else {
             this.hide(this.nextText);
             const statusText = current.isBreak
-                ? `${this.settings.breakLabel} for ${minsText}`
+                ? `${settings.breakLabel} for ${minsText}`
                 : `${minsText} left`;
             this.statusBarText.innerText = statusText;
         }
@@ -196,7 +202,7 @@ export default class StatusBar {
         nextTaskText: string,
     ) {
         if (
-            this.settings.showTaskNotification &&
+            this.config.current().showTaskNotification &&
             this.currentTime !== undefined &&
             this.currentTime !== current.time.toUTCString()
         ) {

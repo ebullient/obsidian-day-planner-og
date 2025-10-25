@@ -5,34 +5,31 @@ import Logger from "./logger";
 import type Parser from "./parser";
 import { PlanSummaryData } from "./plan-data";
 import type Progress from "./progress";
-import { type DayPlannerSettings, NoteForDateQuery } from "./settings";
+import type { ActiveConfig } from "./settings";
 
 export default class PlannerMarkdown {
     workspace: Workspace;
     dayPlannerLastEdit: number;
-    settings: DayPlannerSettings;
+    config: ActiveConfig;
     file: DayPlannerFile;
     parser: Parser;
     progress: Progress;
-    noteForDateQuery: NoteForDateQuery;
 
     constructor(
         workspace: Workspace,
-        settings: DayPlannerSettings,
+        config: ActiveConfig,
         file: DayPlannerFile,
         parser: Parser,
         progress: Progress,
     ) {
         this.workspace = workspace;
-        this.settings = settings;
+        this.config = config;
         this.file = file;
         this.parser = parser;
         this.progress = progress;
-        this.noteForDateQuery = new NoteForDateQuery();
     }
 
-    async insertPlanner() {
-        const filePath = this.file.todayPlannerFilePath();
+    async insertPlanner(filePath: string) {
         const view = this.workspace.getActiveViewOfType(MarkdownView);
         const currentLine = view.editor.getCursor().line;
         await this.file.processFile(filePath, (content) => {
@@ -47,10 +44,11 @@ export default class PlannerMarkdown {
     }
 
     // Combine parse and update in a single function (lock file once.)
-    async processDayPlanner(iAmWriter: boolean): Promise<PlanSummaryData> {
+    async processDayPlanner(
+        iAmWriter: boolean,
+        filePath: string,
+    ): Promise<PlanSummaryData> {
         try {
-            await this.file.prepareFile();
-            const filePath = this.file.todayPlannerFilePath();
             const summary = new PlanSummaryData([], iAmWriter);
             const now = new Date();
 
@@ -64,19 +62,19 @@ export default class PlannerMarkdown {
             Logger.getInstance().logError(
                 "error processing file",
                 iAmWriter,
+                filePath,
                 this.file,
                 error,
             );
         }
     }
 
-    checkIsDayPlannerEditing() {
+    checkIsDayPlannerEditing(path: string) {
         const view = this.workspace.getActiveViewOfType(MarkdownView);
         if (view == null) {
             return;
         }
         const viewState = view.getState();
-        const path = this.file.todayPlannerFilePath();
         if (path && viewState.file === path) {
             this.dayPlannerLastEdit = Date.now();
         }

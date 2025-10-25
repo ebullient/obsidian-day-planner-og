@@ -1,9 +1,9 @@
 import chroma from "chroma-js";
 import { ItemView, type WorkspaceLeaf } from "obsidian";
-import { mount, type SvelteComponent, unmount } from "svelte";
+import { mount, unmount } from "svelte";
 import { COLORS, VIEW_TYPE_TIMELINE } from "./constants";
 import type { PlanSummaryData } from "./plan-data";
-import type { DayPlannerSettings } from "./settings";
+import type { ActiveConfig } from "./settings";
 import Timeline from "./timeline.svelte";
 import {
     now,
@@ -13,18 +13,20 @@ import {
 } from "./timeline-store";
 
 export default class TimelineView extends ItemView {
-    private settings: DayPlannerSettings;
+    private config: ActiveConfig;
     private colors: string[];
-    component: SvelteComponent;
     hoverColors: string[];
+
+    // biome-ignore lint/suspicious/noExplicitAny: Representation of Svelte component
+    component: Record<string, any>;
 
     constructor(
         leaf: WorkspaceLeaf,
-        settings: DayPlannerSettings,
+        config: ActiveConfig,
         summaryData: PlanSummaryData,
     ) {
         super(leaf);
-        this.settings = settings;
+        this.config = config;
         planSummary.set(summaryData);
     }
 
@@ -37,23 +39,23 @@ export default class TimelineView extends ItemView {
     }
 
     getIcon() {
-        return this.settings.timelineIcon;
+        return this.config.current().timelineIcon;
     }
 
     update(summaryData: PlanSummaryData) {
+        const settings = this.config.current();
         if (!this.colors || summaryData.items.length !== this.colors.length) {
             // recalculate colors if the number of items has changed
             const colorFrom =
-                this.settings.timelineColorBegin || COLORS.timelineColorBegin;
+                settings.timelineColorBegin || COLORS.timelineColorBegin;
             const colorTo =
-                this.settings.timelineColorEnd || COLORS.timelineColorEnd;
+                settings.timelineColorEnd || COLORS.timelineColorEnd;
 
             const hoverFrom =
-                this.settings.timelineHoverColorBegin ||
+                settings.timelineHoverColorBegin ||
                 COLORS.timelineHoverColorBegin;
             const hoverTo =
-                this.settings.timelineHoverColorEnd ||
-                COLORS.timelineHoverColorEnd;
+                settings.timelineHoverColorEnd || COLORS.timelineHoverColorEnd;
 
             this.colors = chroma
                 .scale([colorFrom, colorTo])
@@ -71,13 +73,14 @@ export default class TimelineView extends ItemView {
     }
 
     async onOpen() {
+        const settings = this.config.current();
         this.component = mount(Timeline, {
             target: this.contentEl,
             props: {
-                lineColor: this.settings.lineColor || COLORS.lineColor,
-                zoomLevel: this.settings.timelineZoomLevel || 4,
+                lineColor: settings.lineColor || COLORS.lineColor,
+                zoomLevel: settings.timelineZoomLevel || 4,
                 rootEl: this.contentEl,
-                settings: this.settings,
+                settings: settings,
             },
         });
     }

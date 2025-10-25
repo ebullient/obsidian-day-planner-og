@@ -7,6 +7,7 @@ import { describe, expect, test } from "vitest";
 import Parser from '../src/parser';
 import { DayPlannerSettings } from '../src/settings';
 import { PlanSummaryData } from "../src/plan-data";
+import { mockDate } from "./mocks/date";
 
 import Moment from "moment";
 Object.defineProperty(window, "moment", { value: Moment });
@@ -22,7 +23,7 @@ describe('parser', () => {
         settings.correctLabels = false;
         settings.markCurrent = true;
 
-        const parser = new Parser(settings);
+        const parser = new Parser({ current: () => settings});
         const summary = new PlanSummaryData([], true);
         const date = new Date();
         date.setHours(12)
@@ -99,7 +100,7 @@ describe('parser', () => {
         settings.correctLabels = true;
         settings.markCurrent = false;
 
-        const parser = new Parser(settings);
+        const parser = new Parser({ current: () => settings});
         const summary = new PlanSummaryData([], true);
         const date = new Date();
         date.setHours(12)
@@ -139,7 +140,7 @@ describe('parser', () => {
         settings.breakLabel = "☕️ Coffee Break";
         settings.endLabel = "🛑 Finish";
 
-        const parser = new Parser(settings);
+        const parser = new Parser({ current: () => settings});
         const summary = new PlanSummaryData([], true);
         const date = new Date();
 
@@ -184,7 +185,7 @@ describe('parser', () => {
         settings.markCurrent = true;
         settings.correctLabels = false;
 
-        const parser = new Parser(settings);
+        const parser = new Parser({ current: () => settings});
         const summary = new PlanSummaryData([], true);
         const date = new Date();
 
@@ -234,5 +235,73 @@ describe('parser', () => {
             "- [/] 12:10 reading [Markdown](markdown-link)",
         );
         expect(updated[summary.items[5].line]).to.eql("- [ ] 14:00 🛑 Finish");
+    });
+
+    test("getAnchorDate with activePlan set", () => {
+
+        const settings = new DayPlannerSettings();
+        settings.newDayStartsAt = 4;
+
+        const expectedDate = new Date("2025-10-24T04:00:00Z");
+        settings.activePlan = {
+            notePath: "test.md",
+            anchorDate: expectedDate.toISOString(),
+        };
+
+        const parser = new Parser({ current: () => settings});
+        const anchor = parser.getAnchorDate();
+
+        // Compare components to avoid timezone issues
+        expect(anchor.getUTCFullYear()).to.eql(2025);
+        expect(anchor.getUTCMonth()).to.eql(9); // October
+        expect(anchor.getUTCDate()).to.eql(24);
+        expect(anchor.getUTCHours()).to.eql(4);
+        expect(anchor.getUTCMinutes()).to.eql(0);
+    });
+
+    test("getAnchorDate fallback - after newDayStartsAt", () => {
+        const settings = new DayPlannerSettings();
+        settings.newDayStartsAt = 4;
+
+        // No activePlan set, should compute from current time
+
+        // Mock current time: 10 AM on Oct 25
+        const mockNow = new Date("2025-10-25T10:00:00");
+        const unmock = mockDate(mockNow);
+
+        const parser = new Parser({ current: () => settings});
+        const anchor = parser.getAnchorDate();
+
+        // Should be Oct 25 at 04:00 (same day since 10 AM >= 4 AM)
+        expect(anchor.getFullYear()).to.eql(2025);
+        expect(anchor.getMonth()).to.eql(9); // October (0-indexed)
+        expect(anchor.getDate()).to.eql(25);
+        expect(anchor.getHours()).to.eql(4);
+        expect(anchor.getMinutes()).to.eql(0);
+
+        unmock();
+    });
+
+    test("getAnchorDate fallback - before newDayStartsAt", () => {
+
+        const settings = new DayPlannerSettings();
+        settings.newDayStartsAt = 4;
+
+        // No activePlan set, should compute from current time
+        // Mock current time: 2 AM on Oct 25
+        const mockNow = new Date("2025-10-25T02:00:00");
+        const unmock = mockDate(mockNow);
+
+        const parser = new Parser({ current: () => settings});
+        const anchor = parser.getAnchorDate();
+
+        // Should be Oct 24 at 04:00 (yesterday since 2 AM < 4 AM)
+        expect(anchor.getFullYear()).to.eql(2025);
+        expect(anchor.getMonth()).to.eql(9); // October (0-indexed)
+        expect(anchor.getDate()).to.eql(24);
+        expect(anchor.getHours()).to.eql(4);
+        expect(anchor.getMinutes()).to.eql(0);
+
+        unmock();
     });
 });

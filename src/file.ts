@@ -3,80 +3,54 @@ import {
     appHasDailyNotesPluginLoaded,
     getDailyNoteSettings,
 } from "obsidian-daily-notes-interface";
-import { DAY_PLANNER_DEFAULT_CONTENT, DAY_PLANNER_FILENAME } from "./constants";
+import { DAY_PLANNER_DEFAULT_CONTENT } from "./constants";
 import Logger from "./logger";
 import MomentDateRegex from "./moment-date-regex";
-import {
-    DayPlannerMode,
-    type DayPlannerSettings,
-    NoteForDate,
-    NoteForDateQuery,
-} from "./settings";
+import { type ActiveConfig, DayPlannerMode } from "./settings";
 
 export default class DayPlannerFile {
     vault: Vault;
-    settings: DayPlannerSettings;
+    config: ActiveConfig;
     momentDateRegex: MomentDateRegex;
-    noteForDateQuery: NoteForDateQuery;
 
-    constructor(vault: Vault, settings: DayPlannerSettings) {
+    constructor(vault: Vault, activeConfig: ActiveConfig) {
         this.vault = vault;
-        this.settings = settings;
+        this.config = activeConfig;
         this.momentDateRegex = new MomentDateRegex();
-        this.noteForDateQuery = new NoteForDateQuery();
     }
 
-    async hasTodayNote(): Promise<boolean> {
+    async createDailyNote(anchorDate: Date): Promise<string | null> {
         if (
-            this.settings.mode === DayPlannerMode.Daily &&
+            this.config.current().mode === DayPlannerMode.Daily &&
             appHasDailyNotesPluginLoaded()
         ) {
-            const date = new Date();
+            // Use Obsidian's daily notes plugin
             const { folder, format } = getDailyNoteSettings();
-            const filename = `${this.momentDateRegex.getMoment(date, format)}.md`;
+            const filename = `${this.momentDateRegex.getMoment(anchorDate, format)}.md`;
             const path = normalizePath(`${folder}/${filename}`);
-            if (await this.vault.adapter.exists(path)) {
-                const noteForDate = new NoteForDate(path, date.toDateString());
-                this.settings.notesToDates = [noteForDate];
-                return true;
-            }
-            return false;
+
+            return (await this.vault.adapter.exists(path)) ? path : null; // Daily note doesn't exist yet
         }
-
-        return (
-            this.settings.mode === DayPlannerMode.File ||
-            this.noteForDateQuery.exists(this.settings.notesToDates)
-        );
-    }
-
-    todayPlannerFilePath(): string {
-        if (
-            this.settings.mode === DayPlannerMode.Command ||
-            this.settings.mode === DayPlannerMode.Daily
-        ) {
-            return this.noteForDateQuery.active(this.settings.notesToDates)
-                ?.notePath;
-        }
-        const fileName = this.todayPlannerFileName();
-        return `${this.settings.customFolder ?? "Day Planners"}/${fileName}`;
-    }
-
-    todayPlannerFileName(): string {
-        return this.momentDateRegex.replace(DAY_PLANNER_FILENAME);
-    }
-
-    async prepareFile() {
-        try {
-            if (this.settings.mode === DayPlannerMode.File) {
-                await this.createFolderIfNotExists(this.settings.customFolder);
-                await this.createFileIfNotExists(this.todayPlannerFilePath());
-            }
-        } catch (error) {
-            Logger.getInstance().logError(
-                "error updating file settings",
-                error,
+        if (this.config.current().mode === DayPlannerMode.File) {
+            // Fallback: Day Planner creates its own daily note
+            // Use anchor date for filename
+            const dateStr = this.momentDateRegex.getMoment(
+                anchorDate,
+                "YYYYMMDD",
             );
+            const fileName = `Day Planner-${dateStr}.md`;
+            const path = `${this.config.current().customFolder}/${fileName}`;
+
+            await this.createFolderIfNotExists(
+                this.config.current().customFolder,
+            );
+            await this.createFileIfNotExists(path);
+
+            return path;
         }
+
+        // CommandMode or missing daily notes plugin
+        return null;
     }
 
     async createFolderIfNotExists(path: string) {
