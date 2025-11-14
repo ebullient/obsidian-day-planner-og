@@ -81,6 +81,7 @@ export class PlanItem {
     text: string;
     raw: string;
     hidden: boolean;
+    prefix: string;
 
     constructor(
         matchIndex: number,
@@ -93,6 +94,7 @@ export class PlanItem {
         text: string,
         raw: string,
         hidden: boolean,
+        prefix: string,
     ) {
         this.line = matchIndex;
         this.charIndex = charIndex;
@@ -104,6 +106,7 @@ export class PlanItem {
         this.text = text;
         this.raw = raw;
         this.hidden = hidden;
+        this.prefix = prefix;
     }
 }
 
@@ -124,6 +127,7 @@ export class PlanItemFactory {
         rawTime: string,
         text: string,
         raw: string,
+        prefix: string,
     ) {
         const displayText = this.getDisplayText(isBreak, isEnd, text);
         const hidden =
@@ -139,6 +143,7 @@ export class PlanItemFactory {
             displayText,
             raw,
             hidden,
+            prefix,
         );
     }
 

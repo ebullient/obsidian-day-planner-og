@@ -9,6 +9,6 @@
 
 ### Other
 
-- [-] 9:00 breakfast [[wikilink]]
+- [-] **9:00 breakfast** [[wikilink]]
 - [>] 10:00 meeting [[wikilink|alias]]
 - [ ] 14:00 🛑 Finish

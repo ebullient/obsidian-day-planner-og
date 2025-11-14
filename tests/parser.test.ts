@@ -205,7 +205,7 @@ describe('parser', () => {
 
 ### Other
 
-- [-] 09:00 breakfast [[wikilink]]
+- [-] **09:00 breakfast** [[wikilink]]
 - [>] 10:00 meeting [[wikilink|alias]]
 - [ ] 14:00 🛑 Finish
 `);
@@ -223,7 +223,7 @@ describe('parser', () => {
             "- [x] 08:00 morning stuff",
         );
         expect(updated[summary.items[1].line]).to.eql(
-            "- [-] 09:00 breakfast [[wikilink]]",
+            "- [-] **09:00 breakfast** [[wikilink]]",
         );
         expect(updated[summary.items[2].line]).to.eql(
             "- [>] 10:00 meeting [[wikilink|alias]]",

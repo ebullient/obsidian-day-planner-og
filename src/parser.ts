@@ -19,7 +19,7 @@ export default class Parser {
         this.planItemFactory = new PlanItemFactory(this.config);
         // do not include break/end in the regex match. Keep it simple
         this.PLAN_PARSER_REGEX =
-            /^(-?[\s]*\[?(?<completion>.)\]\s*?(?<hours>\d{1,2}):(?<minutes>\d{2})\s(?<text>.*?))$/i;
+            /^(-?[\s]*\[?(?<completion>.)\]\s*(?<prefix>.*?)(?<hours>\d{1,2}):(?<minutes>\d{2})\s(?<text>.*?))$/i;
         this.updateSettings();
     }
 
@@ -99,6 +99,7 @@ export default class Parser {
                     `${value.groups.hours.padStart(2, "0")}:${value.groups.minutes}`,
                     text,
                     value[0],
+                    value.groups.prefix || "",
                 );
             }
         } catch (error) {
@@ -123,7 +124,7 @@ export default class Parser {
             }
         }
 
-        return `- [${check}] ${item.rawTime} ${item.text}`;
+        return `- [${check}] ${item.prefix}${item.rawTime} ${item.text}`;
     }
 
     private matches(input: string, regex: RegExp): boolean {
