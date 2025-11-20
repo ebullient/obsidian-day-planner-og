@@ -13,7 +13,9 @@ main.js
 *.js.map
 *.zip
 dist/
-build/
+
+build
+
 coverage/
 .nyc_output/
 test-vault/
