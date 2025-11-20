@@ -781,3 +781,17 @@
   -ms-transform: rotate(.5turn);
   transform: rotate(.5turn)
 }
+
+// Simple formatting colors that work well against
+// the gradient background. Can't rely on theme colors for this.
+#day-planner-timeline-container {
+  --bold-color: var(--text-on-accent);
+  --italic-color: var(--text-on-accent);
+
+  mark {
+    background-color: rgba(255, 200, 0, 0.4);
+    color: var(--text-on-accent);
+    padding: 1px 2px;
+    border-radius: 2px;
+  }
+}

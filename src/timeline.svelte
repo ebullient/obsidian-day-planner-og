@@ -13,6 +13,9 @@ import {
 const moment = window.moment;
 const MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\(([^)]+)\)/g;
 const WIKI_LINK_REGEX = /\[\[([^\]|]+)(\|([^\]]+))?\]\]/g;
+const BOLD_REGEX = /__(\S(?:.*\S)?)__|\*\*(\S(?:.*\S)?)\*\*/g;
+const ITALIC_REGEX = /_(\S(?:.*\S)?)_|\*(\S(?:.*\S)?)\*/g;
+const HIGHLIGHT_REGEX = /==(\S(?:.*\S)?)==/g;
 
 export let lineColor: string;
 export let zoomLevel: number;
@@ -74,13 +77,16 @@ function itemText(item: PlanItem): string {
     let text = item.text ?? "";
     // Convert Markdown links to HTML
     text = text.replace(MARKDOWN_LINK_REGEX, (_match, p1, _p2) => {
-        return `${p1}`;
-    });
-    // Convert Wiki links to HTML
-    text = text.replace(WIKI_LINK_REGEX, (_match, p1, _p2, p3) => {
-        const alias = p3 || p1;
-        return `${alias}`;
-    });
+            return p1;
+        })
+        // Convert Wiki links to HTML
+        .replace(WIKI_LINK_REGEX, (_match, p1, _p2, p3) => {
+            const alias = p3 || p1;
+            return alias;
+        })
+        .replace(BOLD_REGEX, (_match, p1, p2) => `<strong>${p1 || p2}</strong>`)
+        .replace(ITALIC_REGEX, (_match, p1, p2) => `<em>${p1 || p2}</em>`)
+        .replace(HIGHLIGHT_REGEX, `<mark>$1</mark>`);
     return text;
 }
 
@@ -107,7 +113,7 @@ function disableAutoScroll() {
         if (scrollResumeTimer) {
             clearTimeout(scrollResumeTimer);
         }
-        
+
         // Set new timer to re-enable auto-scroll after delay
         scrollResumeTimer = setTimeout(() => {
             autoScroll = true;
@@ -147,7 +153,7 @@ function disableAutoScroll() {
                         ></div>
                         <div class="ei_Item">
                             <span class="ei_Title">{item.rawTime}</span>
-                            <span class="ei_Copy">{itemText(item)}</span>
+                            <span class="ei_Copy">{@html itemText(item)}</span>
                         </div>
                     </div>
                 </div>
@@ -252,7 +258,7 @@ function disableAutoScroll() {
     }
     .ei_Copy,
     .ei_Title {
-        color: var(--text-on-accent);
+         color: var(--text-on-accent);
     }
     .ei_Dot {
         display: inline-block;
