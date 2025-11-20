@@ -1,6 +1,6 @@
 {
   "name": "obsidian-day-planner-og",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "A plugin to help you plan your day and setup pomodoro timers",
   "main": "main.js",
   "scripts": {
@@ -53,8 +53,8 @@
     "commitLimit": false,
     "ignoreCommitPattern": "(🔖|🔨|🧹|changelog|release|Update README).*",
     "replaceText": {
-        "([;.,] [rR]esolves) #\\d+\\.?\\s*$": "$1",
-        "([;.,] [Ff]ixes) #\\d+\\.?\\s*$": "$1"
+      "([;.,] [rR]esolves) #\\d+\\.?\\s*$": "$1",
+      "([;.,] [Ff]ixes) #\\d+\\.?\\s*$": "$1"
     }
   }
 }
