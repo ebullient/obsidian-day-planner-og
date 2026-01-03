@@ -16,6 +16,7 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
     constructor(app: App, plugin: DayPlanner) {
         super(app, plugin);
         this.plugin = plugin;
+        this.icon = "calendar-clock";
     }
 
     async save() {
