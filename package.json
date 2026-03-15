@@ -48,6 +48,9 @@
     "chroma-js": "^3.1.2",
     "obsidian-daily-notes-interface": "^0.9.4"
   },
+  "overrides": {
+    "minimatch": "10.2.3"
+  },
   "auto-changelog": {
     "backfillLimit": false,
     "commitLimit": false,
