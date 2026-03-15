@@ -20,16 +20,29 @@ export default class DayPlannerFile {
     }
 
     async createDailyNote(anchorDate: Date): Promise<string | null> {
-        if (
-            this.config.current().mode === DayPlannerMode.Daily &&
-            appHasDailyNotesPluginLoaded()
-        ) {
+        if (this.config.current().mode === DayPlannerMode.Daily) {
+            const pluginLoaded = appHasDailyNotesPluginLoaded();
+            if (!pluginLoaded) {
+                Logger.getInstance().logDebug(
+                    "Daily mode: daily notes plugin not loaded",
+                );
+                return null;
+            }
             // Use Obsidian's daily notes plugin
             const { folder, format } = getDailyNoteSettings();
             const filename = `${this.momentDateRegex.getMoment(anchorDate, format)}.md`;
             const path = normalizePath(`${folder}/${filename}`);
+            const exists = await this.vault.adapter.exists(path);
 
-            return (await this.vault.adapter.exists(path)) ? path : null; // Daily note doesn't exist yet
+            Logger.getInstance().logDebug("Daily mode: resolved path", {
+                folder,
+                format,
+                filename,
+                path,
+                exists,
+            });
+
+            return exists ? path : null;
         }
         if (this.config.current().mode === DayPlannerMode.File) {
             // Fallback: Day Planner creates its own daily note
