@@ -273,10 +273,13 @@ export default class DayPlanner extends Plugin implements ActiveConfig {
             this.interval = undefined;
         }
         Logger.getInstance().logDebug(
-            "set Ticker with Device/Writer:",
+            "set Ticker with Device:",
             this.device,
+            "Writer:",
             this.settings.writer,
             this.isWriter(),
+            "Current plan:",
+            this.settings.activePlan.notePath,
         );
         this.interval = window.setInterval(() => this.tick(), 2000);
     }
