@@ -54,6 +54,12 @@ export default class DayPlannerFile {
             const fileName = `Day Planner-${dateStr}.md`;
             const path = `${this.config.current().customFolder}/${fileName}`;
 
+            Logger.getInstance().logDebug("File mode: resolved path", {
+                folder: this.config.current().customFolder,
+                filename: fileName,
+                path,
+            });
+
             await this.createFolderIfNotExists(
                 this.config.current().customFolder,
             );

@@ -8,11 +8,13 @@ import { COLORS, ICONS } from "./constants";
 import Logger from "./logger";
 import type DayPlanner from "./main";
 import MomentDateRegex from "./moment-date-regex";
-import { DayPlannerMode } from "./settings";
+import { DayPlannerMode, type DayPlannerSettings } from "./settings";
 
 export class DayPlannerSettingsTab extends PluginSettingTab {
     momentDateRegex = new MomentDateRegex();
     plugin: DayPlanner;
+    newSettings: DayPlannerSettings;
+
     constructor(app: App, plugin: DayPlanner) {
         super(app, plugin);
         this.plugin = plugin;
@@ -25,10 +27,28 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
     }
 
     hide(): void {
-        this.save();
+        if (this.newSettings.mode !== this.plugin.settings.mode) {
+            const oldMode = DayPlannerMode[this.plugin.settings.mode];
+            const newMode = DayPlannerMode[this.newSettings.mode];
+            // Always clear activePlan on mode change, even if notePath is empty.
+            // unlinkDayPlanner() early-returns when there's no notePath,
+            // but we still need to reset state (e.g. Daily mode with no note yet).
+            Logger.getInstance().logDebug(
+                `Mode changed: ${oldMode} → ${newMode}, unlinked:`,
+                this.plugin.settings.activePlan.notePath ?? "(none)",
+            );
+            void this.plugin.unlinkDayPlanner(
+                `Day Planner mode: ${oldMode} → ${newMode}. Planner unlinked.`,
+            );
+        }
+        const currentPlan = this.plugin.settings.activePlan;
+        Object.assign(this.plugin.settings, this.newSettings);
+        this.plugin.settings.activePlan = currentPlan;
+        void this.save();
     }
 
     display(): void {
+        this.newSettings = JSON.parse(JSON.stringify(this.plugin.settings));
         const { containerEl } = this;
 
         containerEl.empty();
@@ -48,11 +68,11 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                         "Daily mode",
                     )
                     .setValue(
-                        DayPlannerMode[this.plugin.settings.mode] ||
+                        DayPlannerMode[this.newSettings.mode] ||
                             DayPlannerMode.File.toString(),
                     )
                     .onChange((value: string) => {
-                        this.plugin.settings.mode =
+                        this.newSettings.mode =
                             DayPlannerMode[
                                 value as keyof typeof DayPlannerMode
                             ];
@@ -67,11 +87,9 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             .addText((text) =>
                 text
                     .setPlaceholder("Day Planners")
-                    .setValue(
-                        this.plugin.settings.customFolder || "Day Planners",
-                    )
+                    .setValue(this.newSettings.customFolder || "Day Planners")
                     .onChange((value: string) => {
-                        this.plugin.settings.customFolder =
+                        this.newSettings.customFolder =
                             value.trim() || "Day Planners";
                     }),
             );
@@ -83,9 +101,9 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             )
             .addToggle((toggle) =>
                 toggle
-                    .setValue(this.plugin.settings.completePastItems)
+                    .setValue(this.newSettings.completePastItems)
                     .onChange((value: boolean) => {
-                        this.plugin.settings.completePastItems = value;
+                        this.newSettings.completePastItems = value;
                     }),
             );
 
@@ -96,9 +114,9 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             )
             .addToggle((toggle) =>
                 toggle
-                    .setValue(this.plugin.settings.markCurrent)
+                    .setValue(this.newSettings.markCurrent)
                     .onChange((value: boolean) => {
-                        this.plugin.settings.markCurrent = value;
+                        this.newSettings.markCurrent = value;
                     }),
             );
 
@@ -107,9 +125,9 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             .setDesc("Display a circular progress bar in the status bar")
             .addToggle((toggle) =>
                 toggle
-                    .setValue(this.plugin.settings.circularProgress)
+                    .setValue(this.newSettings.circularProgress)
                     .onChange((value: boolean) => {
-                        this.plugin.settings.circularProgress = value;
+                        this.newSettings.circularProgress = value;
                     }),
             );
 
@@ -118,9 +136,9 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             .setDesc("Display now and next tasks in the status bar")
             .addToggle((toggle) =>
                 toggle
-                    .setValue(this.plugin.settings.nowAndNextInStatusBar)
+                    .setValue(this.newSettings.nowAndNextInStatusBar)
                     .onChange((value: boolean) => {
-                        this.plugin.settings.nowAndNextInStatusBar = value;
+                        this.newSettings.nowAndNextInStatusBar = value;
                     }),
             );
 
@@ -129,9 +147,9 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             .setDesc("Display a notification when a new task is started")
             .addToggle((toggle) =>
                 toggle
-                    .setValue(this.plugin.settings.showTaskNotification)
+                    .setValue(this.newSettings.showTaskNotification)
                     .onChange((value: boolean) => {
-                        this.plugin.settings.showTaskNotification = value;
+                        this.newSettings.showTaskNotification = value;
                     }),
             );
 
@@ -143,10 +161,10 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             .addSlider((slider) =>
                 slider
                     .setLimits(1, 5, 1)
-                    .setValue(this.plugin.settings.timelineZoomLevel ?? 4)
+                    .setValue(this.newSettings.timelineZoomLevel ?? 4)
                     .setDynamicTooltip()
                     .onChange((value: number) => {
-                        this.plugin.settings.timelineZoomLevel = value;
+                        this.newSettings.timelineZoomLevel = value;
                     }),
             );
 
@@ -157,9 +175,9 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             )
             .addToggle((toggle) =>
                 toggle
-                    .setValue(this.plugin.settings.autoResumeScroll)
+                    .setValue(this.newSettings.autoResumeScroll)
                     .onChange((value: boolean) => {
-                        this.plugin.settings.autoResumeScroll = value;
+                        this.newSettings.autoResumeScroll = value;
                     }),
             );
 
@@ -168,7 +186,7 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
         );
 
         const updateAutoResumeDelayDesc = () => {
-            const currentValue = this.plugin.settings.autoResumeScrollDelay;
+            const currentValue = this.newSettings.autoResumeScrollDelay;
             if (currentValue < 1000 || currentValue > 10000) {
                 autoResumeDelaySetting.setDesc(
                     `⚠️ Value must be between 1000-10000ms. Currently: ${currentValue}ms`,
@@ -184,7 +202,7 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
 
         autoResumeDelaySetting.addText((component) =>
             component
-                .setValue(this.plugin.settings.autoResumeScrollDelay.toString())
+                .setValue(this.newSettings.autoResumeScrollDelay.toString())
                 .setPlaceholder("3000")
                 .onChange((value: string) => {
                     const numValue = Number(value);
@@ -193,7 +211,7 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                         numValue >= 1000 &&
                         numValue <= 10000
                     ) {
-                        this.plugin.settings.autoResumeScrollDelay = numValue;
+                        this.newSettings.autoResumeScrollDelay = numValue;
                     }
                     updateAutoResumeDelayDesc();
                 }),
@@ -210,11 +228,11 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                 }
                 return dropdown
                     .setValue(
-                        this.plugin.settings.timelineIcon ??
+                        this.newSettings.timelineIcon ??
                             "calendar-with-checkmark",
                     )
                     .onChange((value: string) => {
-                        this.plugin.settings.timelineIcon = value;
+                        this.newSettings.timelineIcon = value;
                     });
             });
 
@@ -233,55 +251,53 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             )
             .addColorPicker((colorPicker) => {
                 colorPicker
-                    .setValue(
-                        this.plugin.settings.lineColor ?? COLORS.lineColor,
-                    )
+                    .setValue(this.newSettings.lineColor ?? COLORS.lineColor)
                     .onChange((value: string) => {
-                        this.plugin.settings.lineColor = value;
+                        this.newSettings.lineColor = value;
                     });
                 pickers.lineColor = colorPicker;
             })
             .addColorPicker((colorPicker) => {
                 colorPicker
                     .setValue(
-                        this.plugin.settings.timelineColorBegin ??
+                        this.newSettings.timelineColorBegin ??
                             COLORS.timelineColorBegin,
                     )
                     .onChange((value: string) => {
-                        this.plugin.settings.timelineColorBegin = value;
+                        this.newSettings.timelineColorBegin = value;
                     });
                 pickers.timelineColorBegin = colorPicker;
             })
             .addColorPicker((colorPicker) => {
                 colorPicker
                     .setValue(
-                        this.plugin.settings.timelineColorEnd ??
+                        this.newSettings.timelineColorEnd ??
                             COLORS.timelineColorEnd,
                     )
                     .onChange((value: string) => {
-                        this.plugin.settings.timelineColorEnd = value;
+                        this.newSettings.timelineColorEnd = value;
                     });
                 pickers.timelineColorEnd = colorPicker;
             })
             .addColorPicker((colorPicker) => {
                 colorPicker
                     .setValue(
-                        this.plugin.settings.timelineHoverColorBegin ??
+                        this.newSettings.timelineHoverColorBegin ??
                             COLORS.timelineHoverColorBegin,
                     )
                     .onChange((value: string) => {
-                        this.plugin.settings.timelineHoverColorBegin = value;
+                        this.newSettings.timelineHoverColorBegin = value;
                     });
                 pickers.timelineHoverColorBegin = colorPicker;
             })
             .addColorPicker((colorPicker) => {
                 colorPicker
                     .setValue(
-                        this.plugin.settings.timelineHoverColorEnd ??
+                        this.newSettings.timelineHoverColorEnd ??
                             COLORS.timelineHoverColorEnd,
                     )
                     .onChange((value: string) => {
-                        this.plugin.settings.timelineHoverColorEnd = value;
+                        this.newSettings.timelineHoverColorEnd = value;
                     });
                 pickers.timelineHoverColorEnd = colorPicker;
             })
@@ -290,28 +306,28 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                     .setTooltip("Reset to default colors")
                     .setIcon("reset")
                     .onClick(() => {
-                        this.plugin.settings.lineColor = COLORS.lineColor;
+                        this.newSettings.lineColor = COLORS.lineColor;
                         pickers.lineColor.setValue(COLORS.lineColor);
 
-                        this.plugin.settings.timelineColorBegin =
+                        this.newSettings.timelineColorBegin =
                             COLORS.timelineColorBegin;
                         pickers.timelineColorBegin.setValue(
                             COLORS.timelineColorBegin,
                         );
 
-                        this.plugin.settings.timelineColorEnd =
+                        this.newSettings.timelineColorEnd =
                             COLORS.timelineColorEnd;
                         pickers.timelineColorEnd.setValue(
                             COLORS.timelineColorEnd,
                         );
 
-                        this.plugin.settings.timelineHoverColorBegin =
+                        this.newSettings.timelineHoverColorBegin =
                             COLORS.timelineHoverColorBegin;
                         pickers.timelineHoverColorBegin.setValue(
                             COLORS.timelineHoverColorBegin,
                         );
 
-                        this.plugin.settings.timelineHoverColorEnd =
+                        this.newSettings.timelineHoverColorEnd =
                             COLORS.timelineHoverColorEnd;
                         pickers.timelineHoverColorEnd.setValue(
                             COLORS.timelineHoverColorEnd,
@@ -326,13 +342,11 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             )
             .addText((component) =>
                 component
-                    .setValue(
-                        this.plugin.settings.plannerLabel ?? "Day Planner",
-                    )
+                    .setValue(this.newSettings.plannerLabel ?? "Day Planner")
                     .onChange((v: string) => {
                         const value = v.trim();
                         if (value.length > 0) {
-                            this.plugin.settings.plannerLabel = value;
+                            this.newSettings.plannerLabel = value;
                         }
                     }),
             );
@@ -342,9 +356,9 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             .setDesc("Use this label to mark break between tasks.")
             .addText((component) =>
                 component
-                    .setValue(this.plugin.settings.breakLabel ?? "BREAK")
+                    .setValue(this.newSettings.breakLabel ?? "BREAK")
                     .onChange((value: string) => {
-                        this.plugin.settings.breakLabel = value;
+                        this.newSettings.breakLabel = value;
                     }),
             );
 
@@ -353,9 +367,9 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             .setDesc("Use this label to mark the end of all tasks.")
             .addText((component) =>
                 component
-                    .setValue(this.plugin.settings.endLabel ?? "END")
+                    .setValue(this.newSettings.endLabel ?? "END")
                     .onChange((value: string) => {
-                        this.plugin.settings.endLabel = value;
+                        this.newSettings.endLabel = value;
                     }),
             );
 
@@ -366,9 +380,9 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             )
             .addToggle((toggle) =>
                 toggle
-                    .setValue(this.plugin.settings.correctLabels)
+                    .setValue(this.newSettings.correctLabels)
                     .onChange((value: boolean) => {
-                        this.plugin.settings.correctLabels = value;
+                        this.newSettings.correctLabels = value;
                     }),
             );
 
@@ -379,7 +393,7 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             )
             .addText((component) =>
                 component
-                    .setValue(this.plugin.settings.preserveValues || "-")
+                    .setValue(this.newSettings.preserveValues || "-")
                     .onChange((v: string) => {
                         let value = v;
                         if (value.length > 0) {
@@ -388,7 +402,7 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                                 .join("")
                                 .replace("x", "");
                         }
-                        this.plugin.settings.preserveValues = value;
+                        this.newSettings.preserveValues = value;
                     }),
             );
 
@@ -399,7 +413,7 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             )
             .addText((component) =>
                 component
-                    .setValue(this.plugin.settings.hideTimelineValues || "-")
+                    .setValue(this.newSettings.hideTimelineValues || "-")
                     .onChange((v: string) => {
                         let value = v;
                         if (value.length > 0) {
@@ -408,7 +422,7 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                                 .join("")
                                 .replace("x", "");
                         }
-                        this.plugin.settings.hideTimelineValues = value;
+                        this.newSettings.hideTimelineValues = value;
                     }),
             );
 
@@ -420,7 +434,7 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             .addText((text) =>
                 text
                     .setPlaceholder("0")
-                    .setValue(this.plugin.settings.newDayStartsAt.toString())
+                    .setValue(this.newSettings.newDayStartsAt.toString())
                     .onChange((value: string) => {
                         const numValue = Number.parseInt(value, 10);
                         if (
@@ -428,7 +442,7 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                             numValue >= 0 &&
                             numValue <= 23
                         ) {
-                            this.plugin.settings.newDayStartsAt = numValue;
+                            this.newSettings.newDayStartsAt = numValue;
                         }
                     }),
             );
@@ -438,9 +452,9 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             .setDesc("Enable debug messages")
             .addToggle((toggle) =>
                 toggle
-                    .setValue(this.plugin.settings.debug)
+                    .setValue(this.newSettings.debug)
                     .onChange((value: boolean) => {
-                        this.plugin.settings.debug = value;
+                        this.newSettings.debug = value;
                     }),
             );
     }

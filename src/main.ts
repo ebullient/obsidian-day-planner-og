@@ -1,6 +1,7 @@
 import {
     debounce,
     MarkdownView,
+    Notice,
     Plugin,
     type TAbstractFile,
     type Vault,
@@ -319,8 +320,8 @@ export default class DayPlanner extends Plugin implements ActiveConfig {
                 );
                 await this.statusBar.refreshStatusBar(planSummary);
                 this.timelineView?.update(planSummary);
-            } else if (this.settings.mode === DayPlannerMode.Daily) {
-                // Clear UI - waiting for daily note to be created
+            } else if (this.settings.mode !== DayPlannerMode.Command) {
+                // No active plan in File/Daily mode — clear UI while waiting
                 const planSummary = new PlanSummaryData([], this.isWriter());
                 await this.statusBar.refreshStatusBar(planSummary);
                 this.timelineView?.update(planSummary);
@@ -415,6 +416,10 @@ export default class DayPlanner extends Plugin implements ActiveConfig {
 
             // Only set activePlan if it doesn't exist yet
             if (!this.settings.activePlan.notePath) {
+                Logger.getInstance().logDebug(
+                    "Command mode: linked plan to",
+                    filePath,
+                );
                 // Use parser to compute anchor date (reuses existing logic)
                 const anchor = this.parser.getAnchorDate();
 
@@ -429,12 +434,8 @@ export default class DayPlanner extends Plugin implements ActiveConfig {
         }
     }
 
-    async unlinkDayPlanner() {
+    async unlinkDayPlanner(message?: string) {
         try {
-            if (!this.settings.activePlan.notePath) {
-                return;
-            }
-
             const notePath = this.settings.activePlan.notePath;
 
             this.settings.activePlan = {};
@@ -443,10 +444,11 @@ export default class DayPlanner extends Plugin implements ActiveConfig {
             this.statusBar.hide(this.statusBar.statusBar);
             this.timelineView?.update(new PlanSummaryData([], this.isWriter()));
 
-            new Notification("Day Planner reset", {
-                silent: true,
-                body: `The Day Planner for today has been dissociated from ${notePath} and can be added to another note`,
-            });
+            if (message) {
+                new Notice(message);
+            } else if (notePath) {
+                new Notice(`Day Planner unlinked from ${notePath}`);
+            }
         } catch (error) {
             console.error(error);
         }
