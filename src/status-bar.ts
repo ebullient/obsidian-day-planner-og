@@ -12,7 +12,9 @@ export default class StatusBar {
     statusBar: HTMLElement;
     statusBarAdded: boolean;
     statusBarText: HTMLSpanElement;
+    statusBarTextContent!: Text;
     nextText: HTMLSpanElement;
+    nextTextContent!: Text;
     statusBarProgress: HTMLDivElement;
     statusBarCurrentProgress: HTMLDivElement;
     circle: HTMLDivElement;
@@ -21,7 +23,11 @@ export default class StatusBar {
     plannerMD: PlannerMarkdown;
     card: HTMLDivElement;
     cardCurrent: HTMLElement;
+    cardCurrentLabel!: HTMLElement;
+    cardCurrentDetail!: Text;
     cardNext: HTMLElement;
+    cardNextLabel!: HTMLElement;
+    cardNextDetail!: Text;
     currentTime: string;
 
     constructor(
@@ -46,14 +52,19 @@ export default class StatusBar {
         }
         const status = this.statusBar.createEl("div", {
             cls: "day-planner",
-            title: "View the Day Planner",
+            title: "View the planner",
             prepend: true,
         });
 
         this.setupCard(status);
+
         this.statusBarText = status.createEl("span", {
             cls: ["status-bar-item-segment", "day-planner-status-bar-text"],
         });
+        const nowLabel = this.statusBarText.createEl("strong");
+        nowLabel.textContent = "Now";
+        this.statusBarTextContent = document.createTextNode("");
+        this.statusBarText.appendChild(this.statusBarTextContent);
 
         this.setupCircularProgressBar(status);
         this.setupHorizontalProgressBar(status);
@@ -61,6 +72,10 @@ export default class StatusBar {
         this.nextText = status.createEl("span", {
             cls: ["status-bar-item-segment", "day-planner-status-bar-text"],
         });
+        const nextLabel = this.nextText.createEl("strong");
+        nextLabel.textContent = "Next";
+        this.nextTextContent = document.createTextNode("");
+        this.nextText.appendChild(this.nextTextContent);
 
         this.setupStatusBarEvents(status);
         this.statusBarAdded = true;
@@ -72,7 +87,7 @@ export default class StatusBar {
                 const settings = this.config.current();
                 const fileName = settings.activePlan.notePath;
                 if (fileName) {
-                    this.workspace.openLinkText(fileName, "", false);
+                    await this.workspace.openLinkText(fileName, "", false);
                 }
             } catch (error) {
                 Logger.getInstance().logError(
@@ -103,13 +118,13 @@ export default class StatusBar {
 
     hide(el: HTMLElement) {
         if (el) {
-            el.style.display = "none";
+            el.addClass("hide");
         }
     }
 
     show(el: HTMLElement) {
         if (el) {
-            el.style.display = "block";
+            el.removeClass("hide");
         }
     }
 
@@ -123,7 +138,7 @@ export default class StatusBar {
         const settings = this.config.current();
         if (!current || !next || current.isEnd) {
             this.hideProgress();
-            this.statusBarText.innerText = settings.endLabel;
+            this.statusBarTextContent.textContent = ` ${settings.endLabel}`;
             return;
         }
         const { percentageComplete, minsUntilNext } = this.progress.getProgress(
@@ -171,22 +186,24 @@ export default class StatusBar {
         const minsText = `${minsUntilNext} min${minsUntilNext === "1" ? "" : "s"}`;
 
         if (settings.nowAndNextInStatusBar) {
-            this.statusBarText.innerHTML = `<strong>Now</strong> ${current.rawTime} ${this.ellipsis(current.text, 10)}`;
-            this.nextText.innerHTML = `<strong>Next</strong> ${next.rawTime} ${this.ellipsis(next.text, 10)}`;
+            this.statusBarTextContent.textContent = ` ${current.rawTime} ${this.ellipsis(current.text, 10)}`;
+            this.nextTextContent.textContent = ` ${next.rawTime} ${this.ellipsis(next.text, 10)}`;
             this.show(this.nextText);
         } else {
             this.hide(this.nextText);
             const statusText = current.isBreak
                 ? `${settings.breakLabel} for ${minsText}`
                 : `${minsText} left`;
-            this.statusBarText.innerText = statusText;
+            this.statusBarTextContent.textContent = ` ${statusText}`;
         }
         const currentTaskStatus = `Current Task (${percentageComplete.toFixed(0)}% complete)`;
         const currentTaskTimeAndText = `${current.rawTime} ${current.text}`;
         const nextTask = `Next Task (in ${minsText})`;
         const nextTaskTimeAndText = `${next.rawTime} ${next.text}`;
-        this.cardCurrent.innerHTML = `<strong>${currentTaskStatus}</strong><br> ${currentTaskTimeAndText}`;
-        this.cardNext.innerHTML = `<strong>${nextTask}</strong><br> ${nextTaskTimeAndText}`;
+        this.cardCurrentLabel.textContent = currentTaskStatus;
+        this.cardCurrentDetail.textContent = ` ${currentTaskTimeAndText}`;
+        this.cardNextLabel.textContent = nextTask;
+        this.cardNextDetail.textContent = ` ${nextTaskTimeAndText}`;
         this.taskNotification(
             current,
             currentTaskTimeAndText,
@@ -225,7 +242,7 @@ export default class StatusBar {
         this.statusBarProgress = status.createEl("div", {
             cls: ["status-bar-item-segment", "day-planner-progress-bar"],
         });
-        this.statusBarProgress.style.display = "none";
+        this.statusBarProgress.addClass("hide");
         this.statusBarCurrentProgress = this.statusBarProgress.createEl("div", {
             cls: "day-planner-progress-value",
         });
@@ -235,14 +252,22 @@ export default class StatusBar {
         this.circle = status.createEl("div", {
             cls: ["status-bar-item-segment", "progress-pie day-planner"],
         });
+        this.circle.addClass("hide");
     }
 
     private setupCard(status: HTMLDivElement) {
         this.card = status.createEl("div", { cls: "day-planner-status-card" });
+        this.card.addClass("hide");
         this.cardCurrent = this.card.createEl("span");
+        this.cardCurrentLabel = this.cardCurrent.createEl("strong");
+        this.cardCurrentDetail = document.createTextNode("");
+        this.cardCurrent.appendChild(this.cardCurrentDetail);
         this.card.createEl("br");
         this.card.createEl("br");
         this.cardNext = this.card.createEl("span");
+        this.cardNextLabel = this.cardNext.createEl("strong");
+        this.cardNextDetail = document.createTextNode("");
+        this.cardNext.appendChild(this.cardNextDetail);
         this.card.createEl("div", { cls: "arrow-down" });
     }
 }

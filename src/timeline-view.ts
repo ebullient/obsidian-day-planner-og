@@ -14,20 +14,20 @@ import {
 
 export default class TimelineView extends ItemView {
     private config: ActiveConfig;
+    private onOpenCallback: () => void;
     private colors: string[];
     hoverColors: string[];
 
-    // biome-ignore lint/suspicious/noExplicitAny: Representation of Svelte component
-    component: Record<string, any>;
+    component: Record<string, unknown>;
 
     constructor(
         leaf: WorkspaceLeaf,
         config: ActiveConfig,
-        summaryData: PlanSummaryData,
+        onOpenCallback: () => void,
     ) {
         super(leaf);
         this.config = config;
-        planSummary.set(summaryData);
+        this.onOpenCallback = onOpenCallback;
     }
 
     getViewType(): string {
@@ -35,7 +35,7 @@ export default class TimelineView extends ItemView {
     }
 
     getDisplayText(): string {
-        return "Day Planner Timeline";
+        return "Timeline";
     }
 
     getIcon() {
@@ -83,9 +83,10 @@ export default class TimelineView extends ItemView {
                 settings: settings,
             },
         });
+        this.onOpenCallback();
     }
 
     async onClose() {
-        unmount(this.component);
+        void unmount(this.component);
     }
 }

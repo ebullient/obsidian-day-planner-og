@@ -16,7 +16,10 @@ export default class Progress {
             const percentageComplete =
                 (fromStart.asMinutes() / diff.asMinutes()) * 100;
             const minsUntilNext = untilNext.asMinutes().toFixed(0);
-            return { percentageComplete, minsUntilNext };
+            return {
+                percentageComplete,
+                minsUntilNext,
+            };
         } catch (error) {
             Logger.getInstance().logError(
                 "error updating progress",
@@ -24,6 +27,10 @@ export default class Progress {
                 next,
                 error,
             );
+            return {
+                percentageComplete: 0,
+                minsUntilNext: 30,
+            };
         }
     }
 

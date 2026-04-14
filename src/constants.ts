@@ -1,3 +1,5 @@
+import { DayPlannerMode, type DayPlannerSettings } from "./settings";
+
 export const DEFAULT_DATE_FORMAT = "YYYYMMDD";
 export const DATE_REGEX = /(?<target>{{date:?(?<date>[^}]*)}})/g;
 
@@ -15,6 +17,36 @@ export const COLORS = {
     timelineColorEnd: "#4d194d",
     timelineHoverColorBegin: "#83003f",
     timelineHoverColorEnd: "#5d0e2e",
+};
+
+export const DEFAULT_SETTINGS: DayPlannerSettings = {
+    customFolder: "",
+    debug: false,
+    mode: DayPlannerMode.File,
+    mermaid: false,
+    completePastItems: false,
+    circularProgress: false,
+    nowAndNextInStatusBar: false,
+    showTaskNotification: false,
+    timelineZoomLevel: 0,
+    timelineIcon: "",
+    plannerLabel: "Day Planner",
+    breakLabel: "BREAK",
+    endLabel: "END",
+    markCurrent: false,
+    correctLabels: false,
+    writer: "",
+    preserveValues: "",
+    hideTimelineValues: "",
+    timelineColorBegin: "",
+    timelineColorEnd: "",
+    timelineHoverColorBegin: "",
+    timelineHoverColorEnd: "",
+    lineColor: "",
+    autoResumeScroll: false,
+    autoResumeScrollDelay: 0,
+    newDayStartsAt: 0,
+    activePlan: {},
 };
 
 export const ICONS = [

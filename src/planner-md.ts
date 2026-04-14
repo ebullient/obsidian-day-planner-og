@@ -66,6 +66,7 @@ export default class PlannerMarkdown {
                 this.file,
                 error,
             );
+            return new PlanSummaryData([], iAmWriter);
         }
     }
 

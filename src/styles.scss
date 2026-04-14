@@ -1,5 +1,9 @@
 /** Status Bar **/
 
+.hide {
+  display: none;
+}
+
 .day-planner {
   position: relative;
 }
@@ -15,7 +19,6 @@
   min-width: 80px;
   height: 16px;
   float: left;
-  display: none;
 }
 
 .day-planner-progress-value {
@@ -47,7 +50,6 @@
   background-color: var(--background-secondary-alt);
   padding: 8px;
   border-radius: 4px;
-  display: none;
 }
 
 .day-planner-status-card .arrow-down {
@@ -64,7 +66,6 @@
   height: 20px;
   margin: 0.3px 10px 0.3px 0;
   width: 20px;
-  display: none;
 }
 
 .progress-pie.day-planner:after {

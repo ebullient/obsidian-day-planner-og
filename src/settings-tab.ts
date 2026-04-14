@@ -4,7 +4,7 @@ import {
     PluginSettingTab,
     Setting,
 } from "obsidian";
-import { COLORS, ICONS } from "./constants";
+import { COLORS, DEFAULT_SETTINGS, ICONS } from "./constants";
 import Logger from "./logger";
 import type DayPlanner from "./main";
 import MomentDateRegex from "./moment-date-regex";
@@ -19,6 +19,7 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
         super(app, plugin);
         this.plugin = plugin;
         this.icon = "calendar-clock";
+        this.newSettings = DEFAULT_SETTINGS;
     }
 
     async save() {
@@ -48,13 +49,15 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
     }
 
     display(): void {
-        this.newSettings = JSON.parse(JSON.stringify(this.plugin.settings));
+        this.newSettings = JSON.parse(
+            JSON.stringify(this.plugin.settings),
+        ) as DayPlannerSettings;
         const { containerEl } = this;
 
         containerEl.empty();
 
         new Setting(containerEl)
-            .setName("Day Planner mode")
+            .setName("Mode")
             .setDesc(this.modeDescriptionContent())
             .addDropdown((dropDown) =>
                 dropDown
@@ -82,11 +85,10 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
         new Setting(containerEl)
             .setName("File mode folder")
             .setDesc(
-                "The folder where Day Planner files will be automatically created in File mode. Default: Day Planners",
+                "The folder where planner files will be automatically created when in file mode.",
             )
             .addText((text) =>
                 text
-                    .setPlaceholder("Day Planners")
                     .setValue(this.newSettings.customFolder || "Day Planners")
                     .onChange((value: string) => {
                         this.newSettings.customFolder =
@@ -97,7 +99,7 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
         new Setting(containerEl)
             .setName("Complete past planner items")
             .setDesc(
-                "The plugin will automatically mark checkboxes for tasks and breaks in the past as complete (x)",
+                "Automatically mark checkboxes for tasks and breaks in the past as complete.",
             )
             .addToggle((toggle) =>
                 toggle
@@ -110,7 +112,7 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
         new Setting(containerEl)
             .setName("Mark in progress planner item")
             .setDesc(
-                "The plugin will automatically mark the textbox for the current item as in progress (/)",
+                "Automatically mark the textbox for the current item as in progress (/).",
             )
             .addToggle((toggle) =>
                 toggle
@@ -122,7 +124,7 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName("Status bar - circular progress")
-            .setDesc("Display a circular progress bar in the status bar")
+            .setDesc("Display a circular progress bar in the status bar.")
             .addToggle((toggle) =>
                 toggle
                     .setValue(this.newSettings.circularProgress)
@@ -189,11 +191,11 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             const currentValue = this.newSettings.autoResumeScrollDelay;
             if (currentValue < 1000 || currentValue > 10000) {
                 autoResumeDelaySetting.setDesc(
-                    `⚠️ Value must be between 1000-10000ms. Currently: ${currentValue}ms`,
+                    `⚠️ Value must be between 1000-10000ms; currently: ${currentValue}ms`,
                 );
             } else {
                 autoResumeDelaySetting.setDesc(
-                    `Auto-resume timeline scrolling (1000-10000ms) after manual interaction stops. Currently: ${currentValue}ms`,
+                    `Auto-resume timeline scrolling (1000-10000ms) after manual interaction stops; currently: ${currentValue}ms`,
                 );
             }
         };
@@ -220,7 +222,7 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
         new Setting(containerEl)
             .setName("Timeline icon")
             .setDesc(
-                "The icon of the timeline pane. Reopen timeline pane or restart obsidian to see the change.",
+                "Timeline pane icon; reopen timeline pane or restart Obsidian to see the change.",
             )
             .addDropdown((dropdown) => {
                 for (const icon of ICONS) {
@@ -307,38 +309,38 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                     .setIcon("reset")
                     .onClick(() => {
                         this.newSettings.lineColor = COLORS.lineColor;
-                        pickers.lineColor.setValue(COLORS.lineColor);
+                        pickers.lineColor?.setValue(COLORS.lineColor);
 
                         this.newSettings.timelineColorBegin =
                             COLORS.timelineColorBegin;
-                        pickers.timelineColorBegin.setValue(
+                        pickers.timelineColorBegin?.setValue(
                             COLORS.timelineColorBegin,
                         );
 
                         this.newSettings.timelineColorEnd =
                             COLORS.timelineColorEnd;
-                        pickers.timelineColorEnd.setValue(
+                        pickers.timelineColorEnd?.setValue(
                             COLORS.timelineColorEnd,
                         );
 
                         this.newSettings.timelineHoverColorBegin =
                             COLORS.timelineHoverColorBegin;
-                        pickers.timelineHoverColorBegin.setValue(
+                        pickers.timelineHoverColorBegin?.setValue(
                             COLORS.timelineHoverColorBegin,
                         );
 
                         this.newSettings.timelineHoverColorEnd =
                             COLORS.timelineHoverColorEnd;
-                        pickers.timelineHoverColorEnd.setValue(
+                        pickers.timelineHoverColorEnd?.setValue(
                             COLORS.timelineHoverColorEnd,
                         );
                     });
             });
 
         new Setting(containerEl)
-            .setName("Day Planner heading")
+            .setName("Planner heading")
             .setDesc(
-                "Use this heading text to mark the beginning of the Day Planner.",
+                "Use this heading text to mark the beginning of the planner.",
             )
             .addText((component) =>
                 component
@@ -352,8 +354,8 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             );
 
         new Setting(containerEl)
-            .setName("BREAK task label")
-            .setDesc("Use this label to mark break between tasks.")
+            .setName("Break task label")
+            .setDesc("Use this label to mark a break between tasks.")
             .addText((component) =>
                 component
                     .setValue(this.newSettings.breakLabel ?? "BREAK")
@@ -363,7 +365,7 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             );
 
         new Setting(containerEl)
-            .setName("END task label")
+            .setName("End task label")
             .setDesc("Use this label to mark the end of all tasks.")
             .addText((component) =>
                 component
@@ -374,9 +376,9 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             );
 
         new Setting(containerEl)
-            .setName("Consistent BREAK and END labels")
+            .setName("Consistent break and end labels")
             .setDesc(
-                "Replace BREAK and END task text in your planner with the configured label text (consistency)",
+                "Replace break and end task text in your planner with the configured label text (consistency).",
             )
             .addToggle((toggle) =>
                 toggle
@@ -409,7 +411,7 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
         new Setting(containerEl)
             .setName("Hide tasks from the timeline")
             .setDesc(
-                "Hide tasks with these values from the timeline view, for example '-' for canceled, or '>' for rescheduled.",
+                "Hide tasks with these values from the timeline view; for example '-' for canceled, or '>' for rescheduled.",
             )
             .addText((component) =>
                 component
@@ -427,9 +429,9 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             );
 
         new Setting(containerEl)
-            .setName("New day starts at")
+            .setName("New day start hour")
             .setDesc(
-                "Hour when a new day begins (0-23). Times before this hour are treated as next day. Default: 0 (midnight). Example: Set to 4 if you work until 3 AM and want those tasks in the same planner.",
+                "Hour when a new day begins; valid values 0-23 (default: 0 (midnight); set to 4 if you work until 3am and want those tasks in the same planner).",
             )
             .addText((text) =>
                 text
