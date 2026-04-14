@@ -8,6 +8,7 @@ import { COLORS, DEFAULT_SETTINGS, ICONS } from "./constants";
 import Logger from "./logger";
 import type DayPlanner from "./main";
 import MomentDateRegex from "./moment-date-regex";
+import { PlanSummaryData } from "./plan-data";
 import { DayPlannerMode, type DayPlannerSettings } from "./settings";
 
 export class DayPlannerSettingsTab extends PluginSettingTab {
@@ -31,20 +32,22 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
         if (this.newSettings.mode !== this.plugin.settings.mode) {
             const oldMode = DayPlannerMode[this.plugin.settings.mode];
             const newMode = DayPlannerMode[this.newSettings.mode];
-            // Always clear activePlan on mode change, even if notePath is empty.
-            // unlinkDayPlanner() early-returns when there's no notePath,
-            // but we still need to reset state (e.g. Daily mode with no note yet).
+            const notePath =
+                this.plugin.settings.activePlan.notePath ?? "(none)";
             Logger.getInstance().logDebug(
-                `Mode changed: ${oldMode} → ${newMode}, unlinked:`,
-                this.plugin.settings.activePlan.notePath ?? "(none)",
+                `Mode changed: ${oldMode} → ${newMode}, unlinked: ${notePath}`,
             );
-            void this.plugin.unlinkDayPlanner(
-                `Day Planner mode: ${oldMode} → ${newMode}. Planner unlinked.`,
+            // Clear activePlan synchronously so the next tick picks up the new
+            // mode with a clean slate. Do NOT call the async unlinkDayPlanner()
+            // here — its deferred save() races with the ticker and overwrites
+            // the activePlan the ticker sets for the new mode.
+            this.newSettings.activePlan = {};
+            this.plugin.statusBar?.hide(this.plugin.statusBar.statusBar);
+            this.plugin.updateTimelineView(
+                new PlanSummaryData([], this.plugin.isWriter()),
             );
         }
-        const currentPlan = this.plugin.settings.activePlan;
         Object.assign(this.plugin.settings, this.newSettings);
-        this.plugin.settings.activePlan = currentPlan;
         void this.save();
     }
 
