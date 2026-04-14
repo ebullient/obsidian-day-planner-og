@@ -10,12 +10,6 @@
     "allowSyntheticDefaultImports": true,
     "importHelpers": true,
     "verbatimModuleSyntax": true,
-    // "lib": [
-    //   "dom",
-    //   "es5",
-    //   "scripthost",
-    //   "es2015"
-    // ],
     "types": [
       "node",
       "svelte"
