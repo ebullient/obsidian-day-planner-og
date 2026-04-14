@@ -45,9 +45,10 @@
 
 .day-planner-status-card {
   position: absolute;
-  top: -140px;
+  bottom: 3em;
+  right: 0;
   width: 300px;
-  background-color: var(--background-secondary-alt);
+  background-color: var(--background-primary-alt);
   padding: 8px;
   border-radius: 4px;
 }
@@ -55,9 +56,11 @@
 .day-planner-status-card .arrow-down {
   border-left: 20px solid transparent;
   border-right: 20px solid transparent;
-  border-top: 20px solid var(--background-secondary-alt);
+  border-top: 20px solid var(--background-primary-alt);
   width: 20px;
   position: absolute;
+  bottom: -10px;
+  right: 8px;
 }
 
 .progress-pie.day-planner {
