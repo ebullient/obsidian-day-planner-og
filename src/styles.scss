@@ -1,11 +1,11 @@
 /** Status Bar **/
 
-.hide {
-  display: none;
-}
-
 .day-planner {
   position: relative;
+
+  .hide {
+    display: none;
+  }
 }
 
 .day-planner .status-bar-item-segment:hover {

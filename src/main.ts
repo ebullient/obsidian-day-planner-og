@@ -336,11 +336,8 @@ export default class DayPlanner extends Plugin implements ActiveConfig {
                     )) ?? new PlanSummaryData([], this.isWriter());
                 await this.statusBar.refreshStatusBar(planSummary);
                 this.updateTimelineView(planSummary);
-            } else if (
-                this.settings.mode !== DayPlannerMode.Command &&
-                this.statusBar
-            ) {
-                // No active plan in File/Daily mode — clear UI while waiting
+            } else if (this.statusBar) {
+                // No active plan — clear UI while waiting
                 const planSummary = new PlanSummaryData([], this.isWriter());
                 await this.statusBar.refreshStatusBar(planSummary);
                 this.updateTimelineView(planSummary);
@@ -475,7 +472,7 @@ export default class DayPlanner extends Plugin implements ActiveConfig {
             this.settings.activePlan = {};
             await this.save();
 
-            this.statusBar?.hide(this.statusBar.statusBar);
+            this.statusBar?.hideAll();
             this.updateTimelineView(new PlanSummaryData([], this.isWriter()));
 
             if (message) {

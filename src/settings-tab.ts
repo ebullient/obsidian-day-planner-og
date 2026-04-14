@@ -8,7 +8,6 @@ import { COLORS, DEFAULT_SETTINGS, ICONS } from "./constants";
 import Logger from "./logger";
 import type DayPlanner from "./main";
 import MomentDateRegex from "./moment-date-regex";
-import { PlanSummaryData } from "./plan-data";
 import { DayPlannerMode, type DayPlannerSettings } from "./settings";
 
 export class DayPlannerSettingsTab extends PluginSettingTab {
@@ -26,6 +25,7 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
     async save() {
         await this.plugin.saveData(this.plugin.settings);
         Logger.getInstance().logDebug("Settings saved");
+        await this.plugin.tick();
     }
 
     hide(): void {
@@ -42,10 +42,6 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
             // here — its deferred save() races with the ticker and overwrites
             // the activePlan the ticker sets for the new mode.
             this.newSettings.activePlan = {};
-            this.plugin.statusBar?.hide(this.plugin.statusBar.statusBar);
-            this.plugin.updateTimelineView(
-                new PlanSummaryData([], this.plugin.isWriter()),
-            );
         }
         Object.assign(this.plugin.settings, this.newSettings);
         void this.save();

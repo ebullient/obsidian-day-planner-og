@@ -10,6 +10,7 @@ export default class StatusBar {
     config: ActiveConfig;
     file: DayPlannerFile;
     statusBar: HTMLElement;
+    statusBarEl: HTMLDivElement;
     statusBarAdded: boolean;
     statusBarText: HTMLSpanElement;
     statusBarTextContent!: Text;
@@ -51,10 +52,11 @@ export default class StatusBar {
             return;
         }
         const status = this.statusBar.createEl("div", {
-            cls: "day-planner",
+            cls: ["day-planner", "hide"],
             title: "View the planner",
             prepend: true,
         });
+        this.statusBarEl = status;
 
         this.setupCard(status);
 
@@ -70,7 +72,11 @@ export default class StatusBar {
         this.setupHorizontalProgressBar(status);
 
         this.nextText = status.createEl("span", {
-            cls: ["status-bar-item-segment", "day-planner-status-bar-text"],
+            cls: [
+                "status-bar-item-segment",
+                "day-planner-status-bar-text",
+                "hide",
+            ],
         });
         const nextLabel = this.nextText.createEl("strong");
         nextLabel.textContent = "Next";
@@ -109,11 +115,15 @@ export default class StatusBar {
     async refreshStatusBar(planSummary: PlanSummaryData) {
         if (!planSummary.empty && !planSummary.invalid) {
             this.updateProgress(planSummary.current, planSummary.next);
-            this.show(this.statusBar);
+            this.show(this.statusBarEl);
         } else {
-            this.hide(this.statusBar);
+            this.hide(this.statusBarEl);
         }
         return planSummary;
+    }
+
+    hideAll() {
+        this.hide(this.statusBarEl);
     }
 
     hide(el: HTMLElement) {
@@ -138,7 +148,12 @@ export default class StatusBar {
         const settings = this.config.current();
         if (!current || !next || current.isEnd) {
             this.hideProgress();
-            this.statusBarTextContent.textContent = ` ${settings.endLabel}`;
+            if (settings.nowAndNextInStatusBar) {
+                this.statusBarTextContent.textContent = ` ${settings.endLabel}`;
+                this.show(this.statusBarText);
+            } else {
+                this.hide(this.statusBarText);
+            }
             return;
         }
         const { percentageComplete, minsUntilNext } = this.progress.getProgress(
@@ -188,13 +203,11 @@ export default class StatusBar {
         if (settings.nowAndNextInStatusBar) {
             this.statusBarTextContent.textContent = ` ${current.rawTime} ${this.ellipsis(current.text, 10)}`;
             this.nextTextContent.textContent = ` ${next.rawTime} ${this.ellipsis(next.text, 10)}`;
+            this.show(this.statusBarText);
             this.show(this.nextText);
         } else {
+            this.hide(this.statusBarText);
             this.hide(this.nextText);
-            const statusText = current.isBreak
-                ? `${settings.breakLabel} for ${minsText}`
-                : `${minsText} left`;
-            this.statusBarTextContent.textContent = ` ${statusText}`;
         }
         const currentTaskStatus = `Current Task (${percentageComplete.toFixed(0)}% complete)`;
         const currentTaskTimeAndText = `${current.rawTime} ${current.text}`;
