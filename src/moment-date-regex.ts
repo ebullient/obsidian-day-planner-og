@@ -30,6 +30,6 @@ export default class MomentDateRegex {
     }
 
     getMoment(now: Date, dateFormat: string) {
-        return window.moment(now).format(dateFormat);
+        return activeWindow.moment(now).format(dateFormat);
     }
 }

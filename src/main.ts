@@ -34,9 +34,7 @@ type DayPlannerApi = {
 };
 
 declare global {
-    interface Window {
-        dayPlanner: DayPlannerApi;
-    }
+    var dayPlanner: DayPlannerApi;
 }
 
 declare module "obsidian" {
@@ -75,7 +73,7 @@ export default class DayPlanner extends Plugin implements ActiveConfig {
     plannerMD: PlannerMarkdown | undefined;
     parser: Parser;
     statusBar: StatusBar | undefined;
-    interval: number | undefined;
+    interval: ReturnType<Window["setInterval"]> | undefined;
 
     current = () => this.settings ?? DEFAULT_SETTINGS;
 
@@ -179,7 +177,8 @@ export default class DayPlanner extends Plugin implements ActiveConfig {
         this.addSettingTab(new DayPlannerSettingsTab(this.app, this));
 
         this.register(() => {
-            window.dayPlanner = {};
+            // eslint-disable-next-line obsidianmd/prefer-active-doc
+            globalThis.dayPlanner = {};
         });
 
         this.app.workspace.onLayoutReady(this.layoutReady);
@@ -221,7 +220,8 @@ export default class DayPlanner extends Plugin implements ActiveConfig {
         await this.tick();
 
         this.setTicker();
-        window.dayPlanner = {
+        // eslint-disable-next-line obsidianmd/prefer-active-doc
+        globalThis.dayPlanner = {
             resolvePath: this.resolvePath.bind(this) as ResolvePath,
         };
     };
@@ -229,7 +229,7 @@ export default class DayPlanner extends Plugin implements ActiveConfig {
     onunload() {
         if (this.interval) {
             Logger.getInstance().logDebug("Clearing ticker");
-            window.clearInterval(this.interval);
+            activeWindow.clearInterval(this.interval);
         }
     }
 
@@ -276,7 +276,7 @@ export default class DayPlanner extends Plugin implements ActiveConfig {
     setTicker() {
         if (this.interval) {
             Logger.getInstance().logDebug("Clearing ticker");
-            window.clearInterval(this.interval);
+            activeWindow.clearInterval(this.interval);
             this.interval = undefined;
         }
         Logger.getInstance().logDebug(
@@ -288,7 +288,7 @@ export default class DayPlanner extends Plugin implements ActiveConfig {
             "Current plan:",
             this.settings.activePlan.notePath,
         );
-        this.interval = window.setInterval(() => {
+        this.interval = activeWindow.setInterval(() => {
             this.tick().catch((e) =>
                 console.error("Day planner tick error", e),
             );

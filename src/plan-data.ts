@@ -47,9 +47,9 @@ export class PlanSummaryData {
                     this.past.push(item);
                 }
                 if (next) {
-                    const m = window.moment;
-                    const untilNext = m
-                        .duration(m(next.time).diff(m(item.time)))
+                    const moment = activeWindow.moment;
+                    const untilNext = moment
+                        .duration(moment(next.time).diff(moment(item.time)))
                         .asMinutes();
                     item.durationMins = untilNext;
                 }

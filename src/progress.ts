@@ -1,7 +1,7 @@
 import Logger from "./logger";
 import type { PlanItem } from "./plan-data";
 
-const moment = window.moment;
+const moment = activeWindow.moment;
 
 export default class Progress {
     getProgress(current: PlanItem, next: PlanItem) {

@@ -65,7 +65,7 @@ export default class StatusBar {
         });
         const nowLabel = this.statusBarText.createEl("strong");
         nowLabel.textContent = "Now";
-        this.statusBarTextContent = document.createTextNode("");
+        this.statusBarTextContent = activeDocument.createTextNode("");
         this.statusBarText.appendChild(this.statusBarTextContent);
 
         this.setupCircularProgressBar(status);
@@ -80,7 +80,7 @@ export default class StatusBar {
         });
         const nextLabel = this.nextText.createEl("strong");
         nextLabel.textContent = "Next";
-        this.nextTextContent = document.createTextNode("");
+        this.nextTextContent = activeDocument.createTextNode("");
         this.nextText.appendChild(this.nextTextContent);
 
         this.setupStatusBarEvents(status);
@@ -273,13 +273,13 @@ export default class StatusBar {
         this.card.addClass("hide");
         this.cardCurrent = this.card.createEl("span");
         this.cardCurrentLabel = this.cardCurrent.createEl("strong");
-        this.cardCurrentDetail = document.createTextNode("");
+        this.cardCurrentDetail = activeDocument.createTextNode("");
         this.cardCurrent.appendChild(this.cardCurrentDetail);
         this.card.createEl("br");
         this.card.createEl("br");
         this.cardNext = this.card.createEl("span");
         this.cardNextLabel = this.cardNext.createEl("strong");
-        this.cardNextDetail = document.createTextNode("");
+        this.cardNextDetail = activeDocument.createTextNode("");
         this.cardNext.appendChild(this.cardNextDetail);
         this.card.createEl("div", { cls: "arrow-down" });
     }

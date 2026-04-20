@@ -461,46 +461,46 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
     }
 
     private modeDescriptionContent(): DocumentFragment {
-        const descEl = document.createDocumentFragment();
+        const descEl = activeDocument.createDocumentFragment();
         descEl.appendText(
             "Choose between 3 modes to use the Day Planner plugin:",
         );
-        descEl.appendChild(document.createElement("br"));
+        descEl.appendChild(activeDocument.createElement("br"));
         descEl
-            .appendChild(document.createElement("strong"))
+            .appendChild(activeDocument.createElement("strong"))
             .appendText("File mode");
-        descEl.appendChild(document.createElement("br"));
+        descEl.appendChild(activeDocument.createElement("br"));
         descEl.appendText(
             "Plugin automatically generates day planner notes for each day within a configurable folder.",
         );
-        descEl.appendChild(document.createElement("br"));
+        descEl.appendChild(activeDocument.createElement("br"));
         descEl
-            .appendChild(document.createElement("strong"))
+            .appendChild(activeDocument.createElement("strong"))
             .appendText("Command mode");
-        descEl.appendChild(document.createElement("br"));
+        descEl.appendChild(activeDocument.createElement("br"));
         descEl.appendText(
             "Command used to insert a Day Planner for today within the current note.",
         );
-        descEl.appendChild(document.createElement("br"));
+        descEl.appendChild(activeDocument.createElement("br"));
         descEl
-            .appendChild(document.createElement("strong"))
+            .appendChild(activeDocument.createElement("strong"))
             .appendText("Daily mode");
-        descEl.appendChild(document.createElement("br"));
+        descEl.appendChild(activeDocument.createElement("br"));
         descEl.appendText(
             "Plugin automatically links to the current daily note. Daily notes plugin must be enabled.",
         );
-        descEl.appendChild(document.createElement("br"));
+        descEl.appendChild(activeDocument.createElement("br"));
         this.addDocsLink(descEl);
         return descEl;
     }
 
     private addDocsLink(descEl: DocumentFragment) {
-        const a = document.createElement("a");
+        const a = activeDocument.createElement("a");
         a.href =
             "https://github.com/ebullient/obsidian-day-planner-og/blob/main/README.md";
         a.text = "plugin README";
         a.target = "_blank";
         descEl.appendChild(a);
-        descEl.appendChild(document.createElement("br"));
+        descEl.appendChild(activeDocument.createElement("br"));
     }
 }

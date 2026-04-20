@@ -4,7 +4,7 @@
   "description": "A plugin to help you plan your day and setup pomodoro timers",
   "main": "main.js",
   "scripts": {
-    "dev": "node ./esbuild.config.mjs",
+    "dev": "node --env-file-if-exists=.env ./esbuild.config.mjs",
     "fix": "npx @biomejs/biome check --write ./src",
     "format": "npx @biomejs/biome format ./src",
     "eslint": "npx eslint",
@@ -34,12 +34,11 @@
     "@typescript-eslint/parser": "^8.56.1",
     "@vitest/coverage-v8": "^3.2.4",
     "auto-changelog": "^2.5.0",
-    "builtin-modules": "^5.0.0",
-    "dotenv": "^17.2.2",
+
     "esbuild": "^0.25.10",
     "esbuild-sass-plugin": "^3.3.1",
     "esbuild-svelte": "^0.9.3",
-    "eslint-plugin-obsidianmd": "^0.1.9",
+    "eslint-plugin-obsidianmd": "^0.2.4",
     "ignore-styles": "^5.0.1",
     "jsdom": "^27.0.0",
     "jsdom-global": "^3.0.2",
@@ -54,6 +53,9 @@
   "dependencies": {
     "chroma-js": "^3.1.2",
     "obsidian-daily-notes-interface": "^0.9.4"
+  },
+  "engines": {
+    "node": ">=22.13.0"
   },
   "overrides": {
     "minimatch": "10.2.3"

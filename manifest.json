@@ -2,7 +2,7 @@
   "id": "day-planner-og",
   "name": "Day Planner (OG)",
   "version": "0.7.5",
-  "minAppVersion": "1.9.0",
+  "minAppVersion": "1.11.0",
   "description": "Plan your day and setup pomodoro timers; fork of original by James Lynch (which stopped at 0.5.8) to preserve simple planner behavior.",
   "isDesktopOnly": false,
   "author": "James Lynch, continued by Erin Schnabel",

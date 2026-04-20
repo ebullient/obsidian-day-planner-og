@@ -11,6 +11,7 @@ import { mockDate } from "./mocks/date";
 
 import Moment from "moment";
 Object.defineProperty(window, "moment", { value: Moment });
+Object.defineProperty(globalThis, "activeWindow", { value: window });
 
 
 describe('parser', () => {
