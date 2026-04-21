@@ -33,12 +33,15 @@ type DayPlannerApi = {
     resolvePath?: ResolvePath;
 };
 
-declare global {
-    var dayPlanner: DayPlannerApi;
-}
-
 declare module "obsidian" {
     interface App {
+        plugins: {
+            plugins: {
+                "day-planner-og": {
+                    api: DayPlannerApi;
+                };
+            };
+        };
         internalPlugins: {
             getPluginById(id: "sync"): {
                 _loaded: boolean;
@@ -73,7 +76,6 @@ export default class DayPlanner extends Plugin implements ActiveConfig {
     plannerMD: PlannerMarkdown | undefined;
     parser: Parser;
     statusBar: StatusBar | undefined;
-    interval: ReturnType<Window["setInterval"]> | undefined;
 
     current = () => this.settings ?? DEFAULT_SETTINGS;
 
@@ -177,8 +179,7 @@ export default class DayPlanner extends Plugin implements ActiveConfig {
         this.addSettingTab(new DayPlannerSettingsTab(this.app, this));
 
         this.register(() => {
-            // eslint-disable-next-line obsidianmd/prefer-active-doc
-            globalThis.dayPlanner = {};
+            this.app.plugins.plugins["day-planner-og"].api = {};
         });
 
         this.app.workspace.onLayoutReady(this.layoutReady);
@@ -219,19 +220,28 @@ export default class DayPlanner extends Plugin implements ActiveConfig {
 
         await this.tick();
 
-        this.setTicker();
-        // eslint-disable-next-line obsidianmd/prefer-active-doc
-        globalThis.dayPlanner = {
+        Logger.getInstance().logDebug(
+            "set Ticker with Device:",
+            this.device,
+            "Writer:",
+            this.settings.writer,
+            this.isWriter(),
+            "Current plan:",
+            this.settings.activePlan.notePath,
+        );
+
+        this.registerInterval(
+            activeWindow.setInterval(() => {
+                this.tick().catch((e) =>
+                    console.error("Day planner tick error", e),
+                );
+            }, 2000),
+        );
+
+        this.app.plugins.plugins["day-planner-og"].api = {
             resolvePath: this.resolvePath.bind(this) as ResolvePath,
         };
     };
-
-    onunload() {
-        if (this.interval) {
-            Logger.getInstance().logDebug("Clearing ticker");
-            activeWindow.clearInterval(this.interval);
-        }
-    }
 
     async handleConfigFileChange() {
         await super.handleConfigFileChange();
@@ -271,28 +281,6 @@ export default class DayPlanner extends Plugin implements ActiveConfig {
             !this.settings.writer ||
             this.settings.writer === this.device
         );
-    }
-
-    setTicker() {
-        if (this.interval) {
-            Logger.getInstance().logDebug("Clearing ticker");
-            activeWindow.clearInterval(this.interval);
-            this.interval = undefined;
-        }
-        Logger.getInstance().logDebug(
-            "set Ticker with Device:",
-            this.device,
-            "Writer:",
-            this.settings.writer,
-            this.isWriter(),
-            "Current plan:",
-            this.settings.activePlan.notePath,
-        );
-        this.interval = activeWindow.setInterval(() => {
-            this.tick().catch((e) =>
-                console.error("Day planner tick error", e),
-            );
-        }, 2000);
     }
 
     async tick() {
