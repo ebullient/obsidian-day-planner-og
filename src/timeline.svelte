@@ -1,6 +1,8 @@
 <script lang="ts">
 import { onDestroy, onMount } from "svelte";
 import Logger from "./logger";
+import { moment } from "obsidian";
+import { momentFn } from "./moment";
 import type { PlanItem } from "./plan-data";
 import type { DayPlannerSettings } from "./settings";
 import {
@@ -10,7 +12,6 @@ import {
     timelineHoverColors,
 } from "./timeline-store";
 
-const moment = window.moment;
 const MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\(([^)]+)\)/g;
 const WIKI_LINK_REGEX = /\[\[([^\]|]+)(\|([^\]]+))?\]\]/g;
 const BOLD_REGEX = /__(\S(?:.*\S)?)__|\*\*(\S(?:.*\S)?)\*\*/g;
@@ -44,7 +45,7 @@ $: {
 
 function positionFromTime(time: Date) {
     return (
-        moment.duration(moment(time).format("HH:mm")).asMinutes() * zoomLevel
+        moment.duration(momentFn(time).format("HH:mm")).asMinutes() * zoomLevel
     );
 }
 
@@ -167,7 +168,7 @@ function disableAutoScroll() {
                 ? 'block'
                 : 'none'}"
         >
-            <span class="timeline-time">{moment($now).format("HH:mm")}</span>
+            <span class="timeline-time">{momentFn($now).format("HH:mm")}</span>
         </div>
 
         <div id="scroll-controls">

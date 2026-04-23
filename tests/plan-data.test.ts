@@ -1,10 +1,6 @@
 /**
  * @vitest-environment jsdom
  */
-import Moment from "moment";
-Object.defineProperty(window, "moment", { value: Moment });
-Object.defineProperty(globalThis, "activeWindow", { value: window });
-
 import { test, expect, describe } from "vitest";
 
 import { PlanItemFactory } from '../src/plan-data';
