@@ -1,4 +1,5 @@
 import { DATE_REGEX, DEFAULT_DATE_FORMAT } from "./constants";
+import { momentFn } from "./moment";
 
 export default class MomentDateRegex {
     replace(input: string): string {
@@ -30,6 +31,6 @@ export default class MomentDateRegex {
     }
 
     getMoment(now: Date, dateFormat: string) {
-        return activeWindow.moment(now).format(dateFormat);
+        return momentFn(now).format(dateFormat);
     }
 }

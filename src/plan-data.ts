@@ -47,11 +47,8 @@ export class PlanSummaryData {
                     this.past.push(item);
                 }
                 if (next) {
-                    const moment = activeWindow.moment;
-                    const untilNext = moment
-                        .duration(moment(next.time).diff(moment(item.time)))
-                        .asMinutes();
-                    item.durationMins = untilNext;
+                    item.durationMins =
+                        (next.time.getTime() - item.time.getTime()) / 60000;
                 }
             });
         } catch (error) {

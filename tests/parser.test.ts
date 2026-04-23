@@ -9,11 +9,6 @@ import { DayPlannerSettings } from '../src/settings';
 import { PlanSummaryData } from "../src/plan-data";
 import { mockDate } from "./mocks/date";
 
-import Moment from "moment";
-Object.defineProperty(window, "moment", { value: Moment });
-Object.defineProperty(globalThis, "activeWindow", { value: window });
-
-
 describe('parser', () => {
     test('should return parsed items', async () => {
         const fileContents = fs.readFileSync(path.join(__dirname, 'fixtures/test.md')).toString();

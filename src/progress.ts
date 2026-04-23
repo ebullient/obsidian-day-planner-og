@@ -1,15 +1,15 @@
+import { moment } from "obsidian";
 import Logger from "./logger";
+import { momentFn } from "./moment";
 import type { PlanItem } from "./plan-data";
-
-const moment = activeWindow.moment;
 
 export default class Progress {
     getProgress(current: PlanItem, next: PlanItem) {
         try {
             const now = new Date();
-            const nowMoment = moment(now);
-            const currentMoment = moment(current.time);
-            const nextMoment = moment(next.time);
+            const nowMoment = momentFn(now);
+            const currentMoment = momentFn(current.time);
+            const nextMoment = momentFn(next.time);
             const diff = moment.duration(nextMoment.diff(currentMoment));
             const fromStart = moment.duration(nowMoment.diff(currentMoment));
             const untilNext = moment.duration(nextMoment.diff(nowMoment));
