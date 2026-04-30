@@ -51,7 +51,7 @@ export default class StatusBar {
         if (this.statusBarAdded) {
             return;
         }
-        const status = this.statusBar.createEl("div", {
+        const status = this.statusBar.createDiv({
             cls: ["day-planner", "hide"],
             title: "View the planner",
             prepend: true,
@@ -60,7 +60,7 @@ export default class StatusBar {
 
         this.setupCard(status);
 
-        this.statusBarText = status.createEl("span", {
+        this.statusBarText = status.createSpan({
             cls: ["status-bar-item-segment", "day-planner-status-bar-text"],
         });
         const nowLabel = this.statusBarText.createEl("strong");
@@ -71,7 +71,7 @@ export default class StatusBar {
         this.setupCircularProgressBar(status);
         this.setupHorizontalProgressBar(status);
 
-        this.nextText = status.createEl("span", {
+        this.nextText = status.createSpan({
             cls: [
                 "status-bar-item-segment",
                 "day-planner-status-bar-text",
@@ -252,35 +252,35 @@ export default class StatusBar {
     }
 
     private setupHorizontalProgressBar(status: HTMLDivElement) {
-        this.statusBarProgress = status.createEl("div", {
+        this.statusBarProgress = status.createDiv({
             cls: ["status-bar-item-segment", "day-planner-progress-bar"],
         });
         this.statusBarProgress.addClass("hide");
-        this.statusBarCurrentProgress = this.statusBarProgress.createEl("div", {
+        this.statusBarCurrentProgress = this.statusBarProgress.createDiv({
             cls: "day-planner-progress-value",
         });
     }
 
     private setupCircularProgressBar(status: HTMLDivElement) {
-        this.circle = status.createEl("div", {
+        this.circle = status.createDiv({
             cls: ["status-bar-item-segment", "progress-pie day-planner"],
         });
         this.circle.addClass("hide");
     }
 
     private setupCard(status: HTMLDivElement) {
-        this.card = status.createEl("div", { cls: "day-planner-status-card" });
+        this.card = status.createDiv({ cls: "day-planner-status-card" });
         this.card.addClass("hide");
-        this.cardCurrent = this.card.createEl("span");
+        this.cardCurrent = this.card.createSpan();
         this.cardCurrentLabel = this.cardCurrent.createEl("strong");
         this.cardCurrentDetail = activeDocument.createTextNode("");
         this.cardCurrent.appendChild(this.cardCurrentDetail);
         this.card.createEl("br");
         this.card.createEl("br");
-        this.cardNext = this.card.createEl("span");
+        this.cardNext = this.card.createSpan();
         this.cardNextLabel = this.cardNext.createEl("strong");
         this.cardNextDetail = activeDocument.createTextNode("");
         this.cardNext.appendChild(this.cardNextDetail);
-        this.card.createEl("div", { cls: "arrow-down" });
+        this.card.createDiv({ cls: "arrow-down" });
     }
 }

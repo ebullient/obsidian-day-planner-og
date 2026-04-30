@@ -1,11 +1,10 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
-    "module": "ESNext",
+    "module": "preserve",
     "target": "es2020",
     "allowJs": true,
     "noImplicitAny": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "importHelpers": true,

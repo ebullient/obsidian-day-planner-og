@@ -7,9 +7,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
     base: "./",
     // Node.js global to browser globalThis
-    define: {
-      global: "globalThis",
-    },
     resolve: {
       alias: {
         obsidian: path.resolve(__dirname, "tests/mocks/obsidian.ts"),
