@@ -45,7 +45,7 @@ declare module "obsidian" {
         internalPlugins: {
             getPluginById(id: "sync"): {
                 _loaded: boolean;
-                instance: import("obsidian").Events & {
+                instance: {
                     deviceName: string;
                     getDefaultDeviceName(): string;
                     getStatus():
