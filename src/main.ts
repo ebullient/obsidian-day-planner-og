@@ -231,7 +231,7 @@ export default class DayPlanner extends Plugin implements ActiveConfig {
         );
 
         this.registerInterval(
-            activeWindow.setInterval(() => {
+            window.setInterval(() => {
                 this.tick().catch((e) =>
                     console.error("Day planner tick error", e),
                 );
