@@ -43,7 +43,7 @@
     "jsdom": "^27.0.0",
     "jsdom-global": "^3.0.2",
     "obsidian": "^1.12.3",
-    "svelte": "^5.39.5",
+    "svelte": "^5.55.8",
     "svelte-preprocess": "^6.0.3",
     "tslib": "^2.8.1",
     "typescript": "5.9.3",
