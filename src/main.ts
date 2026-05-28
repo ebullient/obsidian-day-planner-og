@@ -412,7 +412,7 @@ export default class DayPlanner extends Plugin implements ActiveConfig {
     async insertDayPlannerIntoCurrentNote(insertTemplate: boolean) {
         try {
             const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-            if (!this.settings || !view || !view.file || !this.plannerMD) {
+            if (!this.settings || !view?.file || !this.plannerMD) {
                 return;
             }
             const filePath = view.file.path;
