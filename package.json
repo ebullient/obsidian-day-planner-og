@@ -33,7 +33,7 @@
     "@types/moment": "^2.13.0",
     "@types/node": "^25.3.5",
     "@typescript-eslint/parser": "^8.59.1",
-    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/coverage-v8": "^4.1.8",
     "auto-changelog": "^2.5.0",
     "esbuild": "^0.28.0",
     "esbuild-sass-plugin": "^3.3.1",
@@ -47,7 +47,7 @@
     "svelte-preprocess": "^6.0.3",
     "tslib": "^2.8.1",
     "typescript": "5.9.3",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.8"
   },
   "dependencies": {
     "chroma-js": "^3.1.2",
