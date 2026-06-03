@@ -28,7 +28,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.4.13",
     "@testing-library/svelte": "^5.2.8",
-    "@tsconfig/svelte": "^5.0.5",
+    "@tsconfig/svelte": "^5.0.8",
     "@types/chroma-js": "^3.1.1",
     "@types/moment": "^2.13.0",
     "@types/node": "^25.3.5",
