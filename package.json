@@ -35,7 +35,7 @@
     "@typescript-eslint/parser": "^8.59.2",
     "@vitest/coverage-v8": "^4.1.8",
     "auto-changelog": "^2.5.1",
-    "esbuild": "^0.28.0",
+    "esbuild": "^0.28.1",
     "esbuild-sass-plugin": "^3.7.0",
     "esbuild-svelte": "^0.9.5",
     "eslint-plugin-obsidianmd": "^0.2.9",
