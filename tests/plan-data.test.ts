@@ -1,6 +1,3 @@
-/**
- * @vitest-environment jsdom
- */
 import { test, expect, describe } from "vitest";
 
 import { PlanItemFactory } from '../src/plan-data';

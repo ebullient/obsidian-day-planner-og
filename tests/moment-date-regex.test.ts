@@ -1,6 +1,3 @@
-/**
- * @vitest-environment jsdom
- */
 import { beforeEach, afterEach, test, expect, describe } from "vitest";
 import { mockDate } from './mocks/date'
 
