@@ -42,7 +42,7 @@
     "ignore-styles": "^5.0.1",
     "jsdom": "^29.1.0",
     "jsdom-global": "^3.0.2",
-    "obsidian": "^1.13.0",
+    "obsidian": "^1.13.1",
     "svelte": "^5.55.8",
     "svelte-preprocess": "^6.0.3",
     "tslib": "^2.8.1",
