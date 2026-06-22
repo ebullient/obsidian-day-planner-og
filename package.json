@@ -38,7 +38,7 @@
     "esbuild": "^0.28.1",
     "esbuild-sass-plugin": "^3.7.0",
     "esbuild-svelte": "^0.9.5",
-    "eslint-plugin-obsidianmd": "^0.2.9",
+    "eslint-plugin-obsidianmd": "^0.3.0",
     "ignore-styles": "^5.0.1",
     "obsidian": "^1.13.1",
     "svelte": "^5.55.8",
