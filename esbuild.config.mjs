@@ -2,7 +2,6 @@ import esbuild from "esbuild";
 import process from "process";
 import { builtinModules } from "module";
 import sveltePlugin from "esbuild-svelte";
-import { sveltePreprocess } from 'svelte-preprocess'
 import { sassPlugin } from 'esbuild-sass-plugin'
 
 
@@ -42,7 +41,6 @@ const parameters = {
         sassPlugin(),
         sveltePlugin({
             compilerOptions: { css: 'injected' },
-            preprocess: sveltePreprocess()
         }),
     ]
 };
