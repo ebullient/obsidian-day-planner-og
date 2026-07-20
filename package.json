@@ -44,7 +44,7 @@
     "svelte": "^5.56.3",
     "tslib": "^2.8.1",
     "typescript": "5.9.3",
-    "vitest": "^4.1.8"
+    "vitest": "^4.1.9"
   },
   "dependencies": {
     "chroma-js": "^3.1.2",
