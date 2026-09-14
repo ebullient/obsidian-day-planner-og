@@ -34,7 +34,7 @@
     "@types/node": "^26.2.0",
     "@typescript-eslint/parser": "^8.67.0",
     "auto-changelog": "^2.5.1",
-    "esbuild": "^0.28.1",
+    "esbuild": "^0.28.2",
     "esbuild-sass-plugin": "^3.7.0",
     "esbuild-svelte": "^0.9.5",
     "eslint-plugin-obsidianmd": "^0.4.1",
