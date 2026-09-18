@@ -1,4 +1,9 @@
-import { DayPlannerMode, type DayPlannerSettings } from "./settings";
+import {
+    createDefaultTimelineColorSettings,
+    DayPlannerMode,
+    type DayPlannerSettings,
+    DEFAULT_TIMELINE_COLOR_SCHEME,
+} from "./settings";
 
 export const DEFAULT_DATE_FORMAT = "YYYYMMDD";
 export const DATE_REGEX = /(?<target>{{date:?(?<date>[^}]*)}})/g;
@@ -12,11 +17,7 @@ export const VIEW_TYPE_TIMELINE = "timeline";
 export const MINUTE_MULTIPLIER = 4;
 
 export const COLORS = {
-    lineColor: "#CAD5CA",
-    timelineColorBegin: "#008183",
-    timelineColorEnd: "#4d194d",
-    timelineHoverColorBegin: "#83003f",
-    timelineHoverColorEnd: "#5d0e2e",
+    ...DEFAULT_TIMELINE_COLOR_SCHEME,
 };
 
 export const DEFAULT_SETTINGS: DayPlannerSettings = {
@@ -43,6 +44,7 @@ export const DEFAULT_SETTINGS: DayPlannerSettings = {
     timelineHoverColorBegin: "",
     timelineHoverColorEnd: "",
     lineColor: "",
+    timelineColors: createDefaultTimelineColorSettings(),
     autoResumeScroll: false,
     autoResumeScrollDelay: 0,
     newDayStartsAt: 0,

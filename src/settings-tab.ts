@@ -1,17 +1,18 @@
 import {
     type App,
+    type ButtonComponent,
     type DropdownComponent,
-    type ExtraButtonComponent,
     PluginSettingTab,
     type Setting,
     type SettingDefinitionItem,
     type SettingGroup,
     type TextComponent,
 } from "obsidian";
-import { COLORS, ICONS } from "./constants";
+import { ICONS } from "./constants";
 import Logger from "./logger";
 import type DayPlanner from "./main";
 import { DayPlannerMode } from "./settings";
+import TimelineColorsModal from "./timeline-colors-modal";
 
 export class DayPlannerSettingsTab extends PluginSettingTab {
     plugin: DayPlanner;
@@ -258,75 +259,23 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                 heading: "Timeline colors",
                 items: [
                     {
-                        name: "Line color",
-                        desc: "Color of the current-time line in the timeline.",
-                        control: {
-                            type: "color",
-                            key: "lineColor",
-                            defaultValue: COLORS.lineColor,
-                        },
-                    },
-                    {
-                        name: "Timeline gradient start",
-                        desc: "Start color of the timeline task gradient.",
-                        control: {
-                            type: "color",
-                            key: "timelineColorBegin",
-                            defaultValue: COLORS.timelineColorBegin,
-                        },
-                    },
-                    {
-                        name: "Timeline gradient end",
-                        desc: "End color of the timeline task gradient.",
-                        control: {
-                            type: "color",
-                            key: "timelineColorEnd",
-                            defaultValue: COLORS.timelineColorEnd,
-                        },
-                    },
-                    {
-                        name: "Timeline hover gradient start",
-                        desc: "Start color of the timeline task gradient on hover.",
-                        control: {
-                            type: "color",
-                            key: "timelineHoverColorBegin",
-                            defaultValue: COLORS.timelineHoverColorBegin,
-                        },
-                    },
-                    {
-                        name: "Timeline hover gradient end",
-                        desc: "End color of the timeline task gradient on hover.",
-                        control: {
-                            type: "color",
-                            key: "timelineHoverColorEnd",
-                            defaultValue: COLORS.timelineHoverColorEnd,
-                        },
-                    },
-                    {
-                        name: "Reset timeline colors",
-                        desc: "Restore all timeline colors to their defaults.",
+                        name: "Edit timeline colors",
+                        desc: "Customize light and dark Timeline colors.",
                         render: (setting: Setting, _group: SettingGroup) => {
-                            setting.addExtraButton(
-                                (btn: ExtraButtonComponent) =>
-                                    btn
-                                        .setIcon("reset")
-                                        .setTooltip("Reset to default colors")
-                                        .onClick(async () => {
-                                            this.plugin.settings.lineColor =
-                                                COLORS.lineColor;
-                                            this.plugin.settings.timelineColorBegin =
-                                                COLORS.timelineColorBegin;
-                                            this.plugin.settings.timelineColorEnd =
-                                                COLORS.timelineColorEnd;
-                                            this.plugin.settings.timelineHoverColorBegin =
-                                                COLORS.timelineHoverColorBegin;
-                                            this.plugin.settings.timelineHoverColorEnd =
-                                                COLORS.timelineHoverColorEnd;
+                            setting.addButton((btn: ButtonComponent) =>
+                                btn.setButtonText("Edit colors").onClick(() =>
+                                    new TimelineColorsModal(
+                                        this.app,
+                                        this.plugin.settings,
+                                        async () => {
                                             await this.plugin.saveData(
                                                 this.plugin.settings,
                                             );
+                                            this.plugin.refreshTimelineView();
                                             this.update();
-                                        }),
+                                        },
+                                    ).open(),
+                                ),
                             );
                         },
                     },

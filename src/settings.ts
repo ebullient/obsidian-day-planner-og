@@ -1,3 +1,122 @@
+export interface TimelineColorScheme {
+    lineColor: string;
+    nowLineColor: string;
+    nowLineTextColor: string;
+    timelineColorBegin: string;
+    timelineColorEnd: string;
+    timelineHoverColorBegin: string;
+    timelineHoverColorEnd: string;
+    timelineTextColor: string;
+}
+
+export interface TimelineColorSettings {
+    light: TimelineColorScheme;
+    dark: TimelineColorScheme;
+}
+
+export const DEFAULT_TIMELINE_COLOR_SCHEME: TimelineColorScheme = {
+    lineColor: "#CAD5CA",
+    nowLineColor: "#8b0000",
+    nowLineTextColor: "#ffffff",
+    timelineColorBegin: "#008183",
+    timelineColorEnd: "#4d194d",
+    timelineHoverColorBegin: "#83003f",
+    timelineHoverColorEnd: "#5d0e2e",
+    timelineTextColor: "#ffffff",
+};
+
+function defaultTimelineColorScheme(): TimelineColorScheme {
+    return {
+        ...DEFAULT_TIMELINE_COLOR_SCHEME,
+    };
+}
+
+export function createDefaultTimelineColorSettings(): TimelineColorSettings {
+    return {
+        light: defaultTimelineColorScheme(),
+        dark: defaultTimelineColorScheme(),
+    };
+}
+
+export const TIMELINE_COLOR_KEYS: Array<keyof TimelineColorScheme> = [
+    "lineColor",
+    "nowLineColor",
+    "nowLineTextColor",
+    "timelineColorBegin",
+    "timelineColorEnd",
+    "timelineHoverColorBegin",
+    "timelineHoverColorEnd",
+    "timelineTextColor",
+];
+
+type LegacyTimelineColorKey =
+    | "lineColor"
+    | "timelineColorBegin"
+    | "timelineColorEnd"
+    | "timelineHoverColorBegin"
+    | "timelineHoverColorEnd";
+
+const legacyTimelineColorKeys: LegacyTimelineColorKey[] = [
+    "lineColor",
+    "timelineColorBegin",
+    "timelineColorEnd",
+    "timelineHoverColorBegin",
+    "timelineHoverColorEnd",
+];
+
+export function setTimelineColor(
+    settings: DayPlannerSettings,
+    key: keyof TimelineColorScheme,
+    value: string,
+): void {
+    settings.timelineColors.light[key] = value;
+    settings.timelineColors.dark[key] = value;
+}
+
+export function copyTimelineColorScheme(settings: DayPlannerSettings): void {
+    settings.timelineColors.dark = {
+        ...DEFAULT_TIMELINE_COLOR_SCHEME,
+        ...settings.timelineColors.light,
+    };
+}
+
+export function resetTimelineColorSchemes(
+    settings: DayPlannerSettings,
+    defaults: TimelineColorScheme,
+): void {
+    for (const key of TIMELINE_COLOR_KEYS) {
+        setTimelineColor(settings, key, defaults[key]);
+    }
+}
+
+export function migrateTimelineColors(
+    settings: DayPlannerSettings,
+    defaults: TimelineColorScheme,
+): boolean {
+    const legacySettings = settings as DayPlannerSettings &
+        Partial<Record<LegacyTimelineColorKey, string>>;
+    const hasLegacyColors = legacyTimelineColorKeys.some(
+        (key) => legacySettings[key] !== undefined,
+    );
+
+    if (!hasLegacyColors) {
+        return false;
+    }
+
+    if (!settings.timelineColors) {
+        settings.timelineColors = createDefaultTimelineColorSettings();
+    }
+
+    for (const key of legacyTimelineColorKeys) {
+        const value = legacySettings[key] || defaults[key];
+        settings.timelineColors.light[key] = value;
+        settings.timelineColors.dark[key] = value;
+        delete legacySettings[key];
+    }
+
+    return true;
+}
+
 export class DayPlannerSettings {
     customFolder = "Day Planners";
     debug = false;
@@ -22,6 +141,8 @@ export class DayPlannerSettings {
     timelineHoverColorBegin?: string;
     timelineHoverColorEnd?: string;
     lineColor?: string;
+    timelineColors: TimelineColorSettings =
+        createDefaultTimelineColorSettings();
     autoResumeScroll = true;
     autoResumeScrollDelay = 3000;
     newDayStartsAt = 0;
@@ -67,6 +188,15 @@ export function migrateToActivePlan(settings: OldSettings): boolean {
     // delete notesToDates, return true (Save)
     delete settings.notesToDates;
     return true;
+}
+
+export function migrateSettings(
+    settings: DayPlannerSettings,
+    defaults: TimelineColorScheme,
+): boolean {
+    const activePlanChanged = migrateToActivePlan(settings as OldSettings);
+    const timelineColorsChanged = migrateTimelineColors(settings, defaults);
+    return activePlanChanged || timelineColorsChanged;
 }
 
 // Deprecated

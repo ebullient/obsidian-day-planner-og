@@ -5,12 +5,7 @@ import { moment } from "obsidian";
 import { momentFn } from "./moment";
 import type { PlanItem } from "./plan-data";
 import type { DayPlannerSettings } from "./settings";
-import {
-    now,
-    planSummary,
-    timelineColors,
-    timelineHoverColors,
-} from "./timeline-store";
+import { now, planSummary, timelineColorSchemes } from "./timeline-store";
 
 const MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\(([^)]+)\)/g;
 const WIKI_LINK_REGEX = /\[\[([^\]|]+)(\|([^\]]+))?\]\]/g;
@@ -18,7 +13,6 @@ const BOLD_REGEX = /__(\S(?:.*\S)?)__|\*\*(\S(?:.*\S)?)\*\*/g;
 const ITALIC_REGEX = /_(\S(?:.*\S)?)_|\*(\S(?:.*\S)?)\*/g;
 const HIGHLIGHT_REGEX = /==(\S(?:.*\S)?)==/g;
 
-export let lineColor: string;
 export let zoomLevel: number;
 export let rootEl: HTMLElement;
 export let settings: DayPlannerSettings;
@@ -125,7 +119,7 @@ function disableAutoScroll() {
 </script>
 
 <div id="day-planner-timeline-container"
-    style="--aside-line: color-mix(in srgb, {lineColor} 40%, transparent); --aside-dot: color-mix(in srgb, {lineColor} 60%, transparent); --active-dot: {lineColor}">
+    style="--aside-line-light: color-mix(in srgb, {$timelineColorSchemes.light.lineColor} 40%, transparent); --aside-dot-light: color-mix(in srgb, {$timelineColorSchemes.light.lineColor} 60%, transparent); --active-dot-light: {$timelineColorSchemes.light.lineColor}; --timeline-text-color-light: {$timelineColorSchemes.light.textColor}; --now-line-color-light: {$timelineColorSchemes.light.nowLineColor}; --now-line-text-color-light: {$timelineColorSchemes.light.nowLineTextColor}; --aside-line-dark: color-mix(in srgb, {$timelineColorSchemes.dark.lineColor} 40%, transparent); --aside-dot-dark: color-mix(in srgb, {$timelineColorSchemes.dark.lineColor} 60%, transparent); --active-dot-dark: {$timelineColorSchemes.dark.lineColor}; --timeline-text-color-dark: {$timelineColorSchemes.dark.textColor}; --now-line-color-dark: {$timelineColorSchemes.dark.nowLineColor}; --now-line-text-color-dark: {$timelineColorSchemes.dark.nowLineTextColor}">
     {#if $planSummary.items.length > 0}
         <div
             class="aside aside-x{zoomLevel} filled"
@@ -143,7 +137,7 @@ function disableAutoScroll() {
             {#each $planSummary.activeItems() as item, i}
                 <div
                     class="event_item {itemClasses(item)}"
-                    style="height: {item.durationMins * zoomLevel}px; --event-color: {$timelineColors[i]}; --event-hover: {$timelineHoverColors[i]};"
+                    style="height: {item.durationMins * zoomLevel}px; --event-color-light: {$timelineColorSchemes.light.colors[i]}; --event-hover-light: {$timelineColorSchemes.light.hoverColors[i]}; --event-color-dark: {$timelineColorSchemes.dark.colors[i]}; --event-hover-dark: {$timelineColorSchemes.dark.hoverColors[i]};"
                     data-title={item.rawTime}
                 >
                     <div class="event_item_contents">
@@ -188,6 +182,22 @@ function disableAutoScroll() {
 <style>
     #day-planner-timeline-container {
         position: relative;
+    }
+    :global(.theme-light) #day-planner-timeline-container {
+        --aside-line: var(--aside-line-light);
+        --aside-dot: var(--aside-dot-light);
+        --active-dot: var(--active-dot-light);
+        --timeline-text-color: var(--timeline-text-color-light);
+        --now-line-color: var(--now-line-color-light);
+        --now-line-text-color: var(--now-line-text-color-light);
+    }
+    :global(.theme-dark) #day-planner-timeline-container {
+        --aside-line: var(--aside-line-dark);
+        --aside-dot: var(--aside-dot-dark);
+        --active-dot: var(--active-dot-dark);
+        --timeline-text-color: var(--timeline-text-color-dark);
+        --now-line-color: var(--now-line-color-dark);
+        --now-line-text-color: var(--now-line-text-color-dark);
     }
     .aside {
         position: absolute;
@@ -254,12 +264,20 @@ function disableAutoScroll() {
         background-color: var(--event-hover);
         box-shadow: 0px 0px 52px -18px rgba(0, 0, 0, 0.75);
     }
+    :global(.theme-light) #day-planner-timeline-container .event_item {
+        --event-color: var(--event-color-light);
+        --event-hover: var(--event-hover-light);
+    }
+    :global(.theme-dark) #day-planner-timeline-container .event_item {
+        --event-color: var(--event-color-dark);
+        --event-hover: var(--event-hover-dark);
+    }
     .event_item_contents {
         padding-left: 58px;
     }
     .ei_Copy,
     .ei_Title {
-         color: var(--text-on-accent);
+        color: var(--timeline-text-color);
     }
     .ei_Dot {
         display: inline-block;
@@ -286,13 +304,12 @@ function disableAutoScroll() {
         font-size: 15px;
     }
     .header_title,
-    .ei_Title,
     .ce_title {
         color: #fff;
     }
     #now-line {
         height: 4px;
-        background-color: darkred;
+        background-color: var(--now-line-color);
         opacity: 80%;
         position: absolute;
         z-index: 3;
@@ -302,8 +319,8 @@ function disableAutoScroll() {
         position: relative;
         left: 5px;
         top: 0;
-        background-color: darkred;
-        color: #fff;
+        background-color: var(--now-line-color);
+        color: var(--now-line-text-color);
         padding: 0 4px 2px 4px;
         border-radius: 0 0 4px 4px;
         text-align: center;

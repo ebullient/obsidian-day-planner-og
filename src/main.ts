@@ -9,7 +9,7 @@ import {
     type Vault,
     type WorkspaceLeaf,
 } from "obsidian";
-import { DEFAULT_SETTINGS, VIEW_TYPE_TIMELINE } from "./constants";
+import { COLORS, DEFAULT_SETTINGS, VIEW_TYPE_TIMELINE } from "./constants";
 import DayPlannerFile from "./file";
 import Logger from "./logger";
 import Parser from "./parser";
@@ -20,8 +20,7 @@ import {
     type ActiveConfig,
     DayPlannerMode,
     DayPlannerSettings,
-    migrateToActivePlan,
-    type OldSettings,
+    migrateSettings,
 } from "./settings";
 import { DayPlannerSettingsTab } from "./settings-tab";
 import StatusBar from "./status-bar";
@@ -76,6 +75,7 @@ export default class DayPlanner extends Plugin implements ActiveConfig {
     plannerMD: PlannerMarkdown | undefined;
     parser: Parser;
     statusBar: StatusBar | undefined;
+    private currentPlanSummary = new PlanSummaryData([], false);
 
     current = () => this.settings ?? DEFAULT_SETTINGS;
 
@@ -97,8 +97,8 @@ export default class DayPlanner extends Plugin implements ActiveConfig {
             await this.loadData(),
         ) as DayPlannerSettings;
 
-        // MIGRATION: Handle old notesToDates field
-        if (migrateToActivePlan(this.settings as OldSettings)) {
+        // MIGRATION: Handle old notesToDates and Timeline color fields
+        if (migrateSettings(this.settings, COLORS)) {
             await this.save();
         }
 
@@ -343,12 +343,17 @@ export default class DayPlanner extends Plugin implements ActiveConfig {
     }
 
     updateTimelineView(planSummary: PlanSummaryData) {
+        this.currentPlanSummary = planSummary;
         const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_TIMELINE);
         leaves.forEach((leaf) => {
             if (leaf.view instanceof TimelineView) {
                 leaf.view.update(planSummary);
             }
         });
+    }
+
+    refreshTimelineView(): void {
+        this.updateTimelineView(this.currentPlanSummary);
     }
 
     initLeaf() {
