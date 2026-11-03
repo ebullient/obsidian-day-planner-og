@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.6.2/schema.json",
 	"vcs": {
 		"enabled": false,
 		"clientKind": "git",
@@ -7,10 +7,7 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-    "includes": [
-      "**",
-      "!**/*.svelte"
-    ]
+		"includes": ["**", "!**/*.svelte"]
 	},
 	"formatter": {
 		"enabled": true,
@@ -21,7 +18,7 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true,
+			"preset": "recommended",
 			"style": {
 				"noParameterAssign": "error",
 				"useAsConstAssertion": "error",
